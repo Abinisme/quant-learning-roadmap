@@ -9,7 +9,7 @@ const ROADMAP_DATA = {
     title: '量化交易学习路线图',
     subtitle: '从小白到顶级刀俎',
     description: '综合 GitHub 开源社区大佬建议，从零到实盘的全路径规划。先看懂 → 再模仿 → 再改造 → 最后自研。',
-    version: '1.1.0',
+    version: '1.2.0',
     lastUpdated: '2026-05-25'
   },
 
@@ -218,165 +218,205 @@ const ROADMAP_DATA = {
       id: 'stage-2',
       number: '02',
       title: '金融数据与基础策略',
-      subtitle: '数据获取 + 指标计算 + 策略回测',
+      subtitle: '数据获取 · 指标计算 · 手动回测 · 实战检验',
       duration: '3-4 周',
       difficulty: '入门',
       color: '#8b5cf6',
       icon: 'fa-solid fa-chart-line',
       quote: '数据即燃料，指标即罗盘',
-      overview: '学习获取真实行情数据，掌握经典技术指标计算，实现第一个可回测的双均线策略。从"看懂图"到"让程序自己看图做决策"。',
+      overview: '学习获取真实行情数据，掌握经典技术指标的计算原理与代码实现，在 Excel 和 Python 上手动做策略回测，理解每一笔交易的产生过程。从"看懂图"到"让程序自己做决策"，完成你的第一个量化策略。',
       modules: [
         {
           id: '2-1',
           title: '数据源对接',
-          duration: '2-3 天',
+          duration: '3-4 天',
           points: [
-            'AkShare：免费 A 股数据接口（推荐入门）',
-            'yfinance：免费美股数据接口',
-            'Tushare Pro：国内专业数据源（需注册 token）',
-            '了解数据字段：开盘价/收盘价/最高/最低/成交量'
+            'AkShare：免费 A 股数据接口。pip install akshare，一行代码 stock_zh_a_hist() 拉取全市场历史日线',
+            'yfinance：免费美股数据接口。yf.download("AAPL") 轻松获取苹果公司全部历史行情',
+            'Tushare Pro：国内最专业数据源，需注册获取 token，覆盖 A 股/期货/基金/宏观经济',
+            '了解 OHLCV 字段：Open（开盘）/ High（最高）/ Low（最低）/ Close（收盘）/ Volume（成交量）',
+            '数据频率：日线（最常见）、周线、月线、分钟线（量化进阶需要）',
+            '接口限制与容错：免费 API 有调用频率限制，学会用 time.sleep() 和 try/except 保护',
+            '数据存储策略：拉取一次存 CSV，后续复用避免重复请求',
+            '数据校验：检查日期连续性、成交量是否异常、价格是否出现负值'
           ],
           knowledgeCards: [
-            { title: 'AkShare 入门首选', content: '无需注册、无需 token，pip install 即可拉取 A 股全部历史数据，是入门最佳选择' },
-            { title: '数据质量意识', content: '不同数据源可能有不同复权方式，实盘前一定要确认数据准确性' }
+            { title: 'AkShare：零门槛入门首选', content: '无需注册、无需 API Key，pip install 后直接拉取 A 股全量数据。支持股票、期货、基金、外汇等 100+ 数据接口。缺点是免费接口有时限流，大批量下载需耐心。' },
+            { title: '数据源对比选择', content: '初学者 → AkShare（免费无门槛）；美股研究 → yfinance（Yahoo 数据，稳定可靠）；专业回测 → Tushare Pro（需积分，但数据质量最高、字段最全）；实盘 → 券商 API（CTPr/XTP 等直接对接交易所）' },
+            { title: 'OHLCV = 量化数据的基本单元', content: '每根 K 线就是一组 OHLCV 数据。所有技术指标（均线、MACD、RSI……）都从这 5 个数值衍生而来。理解 OHLCV 是理解一切量化计算的第一步。' },
+            { title: '数据频率的选择', content: '日线做中长期策略（持仓数天到数周）；分钟线做日内策略（当日进出）；Tick 级数据做高频交易（毫秒级）。入门阶段专注于日线，数据量小、逻辑清楚。' }
           ],
           practice: {
-            title: '实战：批量拉取股票数据',
-            desc: '用 AkShare 拉取 5 只沪深 300 成分股近 3 年日线数据，存为 CSV'
+            title: '实战：搭建个人行情数据库',
+            desc: '（1）用 AkShare 拉取沪深 300 成分股的近 3 年全部日线数据；（2）每只股票存为独立 CSV，文件名用股票代码；（3）写脚本校验：检查每只股票的数据是否完整（日期连续、无异常值）；（4）将所有 CSV 合并为一个统一的行情数据库。'
           },
           resources: [
-            { label: 'AkShare 文档', url: 'https://akshare.akfamily.xyz/' },
-            { label: 'yfinance', url: 'https://github.com/ranaroussi/yfinance' },
-            { label: 'pandas-ta 指标库', url: 'https://github.com/twopirllc/pandas-ta' }
+            { label: 'AkShare 官方文档', url: 'https://akshare.akfamily.xyz/' },
+            { label: 'yfinance GitHub', url: 'https://github.com/ranaroussi/yfinance' },
+            { label: 'Tushare Pro 官网', url: 'https://tushare.pro/' }
           ]
         },
         {
           id: '2-2',
-          title: '股票数据基础',
-          duration: '2-3 天',
+          title: '股票数据基础与清洗',
+          duration: '3-4 天',
           points: [
-            '前复权 vs 后复权：概念与区别',
-            '时间序列索引：日期格式转换、排序',
-            'resample：日线转周线/月线',
-            '缺失值处理：停牌日期的填充策略'
+            '前复权 vs 后复权：前复权以当前价格为基准调整历史价格——回测必须用前复权',
+            '停牌处理：A 股经常停牌（节假日、重大事项），缺失日期的填充策略',
+            '时间序列索引：pd.to_datetime() 日期转换、df.set_index("日期") 设为索引、df.sort_index() 排序',
+            '日收益率计算：df["return"] = df["close"].pct_change() 得到每日涨跌幅',
+            'resample 重采样：df.resample("W").agg({"open":"first","close":"last","volume":"sum"}) 日线转周线',
+            '异常值检测与处理：用 df.describe() 查看统计摘要，涨跌幅超过 ±11%（A 股涨停限制）的标记为异常',
+            '数据对齐：多只股票日期不一致时，用 pd.merge 按日期对齐',
+            '滚动窗口概念：rolling(N) 取最近 N 天数据，是技术指标计算的核心机制'
           ],
           knowledgeCards: [
-            { title: '复权是回测的生命线', content: '不复权的价格数据在除权除息日会出现跳空缺口，回测结果严重失真。始终使用前复权数据做回测' },
-            { title: '停牌处理', content: 'A 股经常停牌，forward fill 前向填充是常用策略，但要注意避免用未来数据' }
+            { title: '复权：回测的第一条铁律', content: '不复权的数据在除权除息日会出现"跳空缺口"——股价从 100 元突然变成 80 元，回测误判为暴跌。始终使用前复权数据！始终使用前复权数据！始终使用前复权数据！' },
+            { title: '停牌是 A 股的特色挑战', content: 'A 股每年约 10% 的交易日有股票停牌。两种常用处理：1) 前向填充（用停牌前最后价格填充）适合回测；2) 删除停牌日（适合统计分析）。注意：用前向填充时，停牌期间别生成交易信号。' },
+            { title: 'pct_change()：一行搞定全市场收益率', content: 'df["return"] = df.groupby("code")["close"].pct_change() 这行代码能同时计算 5000 只股票的日收益率——纯向量化运算，毫秒级完成。理解分组+变换的组合，是 Pandas 进阶的标志。' },
+            { title: '异常值检查清单', content: '每次拿到新数据后必检：① 涨跌幅是否超出涨跌停限制？② 成交量是否为零（全天停牌）？③ 最高价是否低于最低价？④ 是否有重复日期？自动化这个检查流程，是职业量化习惯。' }
           ],
           practice: {
-            title: '实战：数据处理管道',
-            desc: '编写一个数据处理函数：输入原始数据 → 前复权 → 缺失值填充 → 计算日收益率 → 输出清洁数据集'
+            title: '实战：全自动数据清洗管道',
+            desc: '编写 data_pipeline() 函数：输入——原始 CSV 文件夹；处理——① 读取所有文件 ② 统一日期格式 ③ 前复权（如有复权因子）④ 缺失值前向填充 ⑤ 计算日收益率 ⑥ 异常值标记；输出——干净的统一 DataFrame + 异常报告（哪些股票、哪些日期有问题）。'
           },
           resources: [
-            { label: '量化数据清洗指南', url: 'https://pandas.pydata.org/docs/user_guide/timeseries.html' }
+            { label: 'Pandas 时间序列文档', url: 'https://pandas.pydata.org/docs/user_guide/timeseries.html' },
+            { label: '量化数据清洗实践', url: 'https://pandas.pydata.org/docs/user_guide/missing_data.html' }
           ]
         },
         {
           id: '2-3',
           title: '经典技术指标实战',
-          duration: '4-5 天',
+          duration: '5-6 天',
           points: [
-            'MA 移动平均线：简单移动平均、指数移动平均',
-            'MACD：DIF/DEA/柱状线，金叉死叉判断',
-            'RSI 相对强弱指标：超买(>70)超卖(<30)',
-            '布林带：上轨/中轨/下轨，突破与回归',
-            'KDJ：随机指标，短线交易常用'
+            'MA 移动平均线：SMA（简单平均）、EMA（指数加权，近期权重更大）。rolling(N).mean() 实现',
+            'MACD：DIF=EMA12-EMA26、DEA=EMA(DIF,9)、柱=2×(DIF-DEA)。金叉=买入信号',
+            'RSI：RS=平均涨幅/平均跌幅，RSI=100-100/(1+RS)。>70 超买，<30 超卖',
+            '布林带：中轨=MA20、上轨=中轨+2σ、下轨=中轨-2σ。突破上/下轨可能超买/超卖',
+            'KDJ：根据 N 日最高/最低价与收盘价的关系计算。K 线上穿 D 线为金叉',
+            'ATR（平均真实波幅）：衡量价格波动幅度的指标，用于动态设置止损',
+            '成交量指标：量比=当日成交量/5日均量、OBV（能量潮）',
+            '指标组合使用：不要依赖单一指标，MACD+RSI+布林带的组合过滤能大幅减少假信号'
           ],
           knowledgeCards: [
-            { title: '指标不是圣杯', content: '单个指标准确率通常只有 45-55%，组合使用 + 仓位管理才是盈利关键' },
-            { title: 'pandas-ta 省去重复造轮子', content: 'pip install pandas-ta，一行代码计算 200+ 种指标，专业又稳定' }
+            { title: '指标不是圣杯，是概率工具', content: '任何单个技术指标的预测准确率通常只有 45-55%。真正的价值在于：指标组合使用（多指标共振）+ 仓位管理 + 止损纪律。三重过滤后的信号可靠性远高于单一指标。' },
+            { title: 'EMA vs SMA：何时用哪个', content: 'EMA 对最近的价格变化更敏感，适合短线策略（5-20 日）；SMA 更平滑稳定，适合中长线策略（20-200 日）。海龟交易法用 SMA，日内策略用 EMA，没有绝对好坏，取决于策略周期。' },
+            { title: 'MACD 的三种用法', content: '1) 金叉死叉：最基础，DIF 上穿 DEA 买入；2) 零轴判断：DIF>0 多头市场，DIF<0 空头市场；3) 背离：价格创新高但 MACD 没跟上——趋势衰竭的信号，威力最大但判断最难。' },
+            { title: '布林带的宽度 = 市场波动率指标', content: '布林带收窄意味着波动率降低——往往是爆发前兆（暴风雨前的宁静）。布林带扩张意味着波动加大。学会看布林带形态比单纯看上下轨更有价值。' }
           ],
           practice: {
-            title: '实战：指标组合筛选',
-            desc: '计算 50 只股票的 MACD + RSI + 布林带，找出同时满足"MACD 金叉 + RSI < 30 + 价格触及布林下轨"的股票'
+            title: '实战：多指标共振扫描器',
+            desc: '计算 50 只股票的 MACD、RSI(14)、布林带(20,2)、ATR(14)。编写筛选条件：同时满足 ① MACD 金叉（今日 DIF 上穿 DEA）② RSI<40（未过热）③ 收盘价触及布林下轨（超卖）④ 今日成交量 > 20 日均量 1.5 倍（放量）。输出满足条件的股票列表。'
           },
           resources: [
-            { label: 'pandas-ta 所有指标', url: 'https://github.com/twopirllc/pandas-ta' },
-            { label: 'StockTradingStrategy 项目', url: 'https://github.com/jimmybow/StockTradingStrategy' }
+            { label: '股票技术指标详解', url: 'https://www.investopedia.com/terms/t/technicalindicator.asp' },
+            { label: 'MACD 原理解析', url: 'https://www.investopedia.com/terms/m/macd.asp' },
+            { label: 'TA-Lib Python 绑定', url: 'https://github.com/TA-Lib/ta-lib-python' }
           ]
         },
         {
           id: '2-4',
-          title: '双均线策略回测',
-          duration: '3-4 天',
+          title: '双均线策略：从手动到代码',
+          duration: '4-5 天',
           points: [
-            '双均线交叉逻辑：金叉买入、死叉卖出',
-            '在 Excel/CSV 上手动做模拟回测',
-            '收益率计算：累计收益、年化收益',
-            '回测指标：胜率、盈亏比、最大回撤、夏普比率'
+            '策略逻辑：当短期均线（如 MA5）上穿长期均线（如 MA20）→ 买入；下穿 → 卖出',
+            '手动回测：在 Excel 上逐行标注买卖信号，亲自点一遍交易过程',
+            '用 Pandas 实现：df["MA5"] > df["MA20"] 且 shift(1) 比较上一行，找到交叉点',
+            '回测模拟：维护 position 变量（0=空仓, 1=持仓），遍历每行数据模拟交易',
+            '收益率计算：累计收益率、年化收益率 = (期末净值/期初净值)^(252/N) - 1',
+            '风险指标：最大回撤（净值从峰到谷的最大跌幅）、夏普比率（单位风险的超额收益）',
+            '策略对比：同一数据跑不同参数（MA5/20 vs MA10/60 vs MA20/120），对比表现差异',
+            '局限性认知：双均线在震荡市频繁止损、在强趋势市表现好。理解策略的适用场景是成为量化交易者的关键转折'
           ],
           knowledgeCards: [
-            { title: '先手动再自动', content: '在 Excel 上手动跑一遍回测逻辑，你会深刻理解每一笔交易的产生过程，远比直接调框架有用' },
-            { title: '最大回撤比收益率更重要', content: '收益 50% 但回撤 60%，你大概率在中途就爆仓了。回撤控制是活下去的前提' }
+            { title: '先手动、再代码——这是捷径，不是弯路', content: '在 Excel 上手动标记 50 个交易日的买卖点，你会深刻理解：为什么这里买入？为什么那里卖出？滑点对盈亏有多大影响？双均线为什么会在震荡市反复亏损？这种体感用框架跑 100 次回测都得不到。' },
+            { title: '回撤控制比收益率更重要', content: '收益 50% 但中途最大回撤 60%——你大概率在回撤 40% 的时候就崩溃离场了，根本等不到后面的反弹。策略的"可执行性"取决于你能承受的最大回撤，而不是预期收益。' },
+            { title: '参数越多 ≠ 策略越好', content: '双均线用 2 个参数（短期、长期窗口）。如果你把参数调到 5 个（加平滑、加过滤、加延迟确认），回测结果可能会更漂亮——但那大概率是过拟合。简单策略 + 严格风控 > 复杂策略 + 无风控。' },
+            { title: '样本外验证——从这一刻养成习惯', content: '用前 3 年数据调参数，用最后 1 年数据验证。如果在最后 1 年（策略从未见过的数据）上表现依然不错，那才值得继续研究。只在样本内漂亮的策略 = 废纸。' }
           ],
           practice: {
-            title: '实战：双均线完整回测',
-            desc: '选一只股票 5 年历史数据，实现双均线策略，输出：交易次数、胜率、年化收益、最大回撤、夏普比率'
+            title: '实战：双均线策略完整回测系统',
+            desc: '选一只股票 5 年日线数据。(1) Excel 手动回测：标注前 50 根 K 线的买卖点，计算每笔盈亏；(2) Python 实现：用 Pandas 遍历所有交易日，模拟买卖信号，记录每笔交易的买卖价、盈亏、持仓天数；(3) 输出回测报告：总交易次数、胜率、盈亏比、累计收益率、年化收益率、最大回撤、夏普比率；(4) 对比 Excel 和 Python 结果是否一致。'
           },
           resources: [
-            { label: '夏普比率详解', url: 'https://www.investopedia.com/terms/s/sharperatio.asp' }
+            { label: '夏普比率详解', url: 'https://www.investopedia.com/terms/s/sharperatio.asp' },
+            { label: '最大回撤概念', url: 'https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp' }
           ]
         }
       ],
-      milestone: '独立完成双均线策略的回测，理解所有回测指标含义'
+      milestone: '独立完成双均线策略从 Excel 到 Python 的全流程回测，理解所有回测指标的计算方式和含义'
     },
 
     {
       id: 'stage-3',
       number: '03',
       title: '回测框架与策略开发',
-      subtitle: 'Backtrader 实战 · 多种策略类型',
+      subtitle: 'Backtrader 实战 · 三类经典策略 · 参数优化',
       duration: '4-6 周',
       difficulty: '进阶',
       color: '#10b981',
       icon: 'fa-solid fa-flask',
       quote: '回测是量化交易的第一道防火墙',
-      overview: '深入学习 Backtrader 回测框架，掌握趋势跟踪、均值回归、动量策略三大经典策略类型，学会参数优化与过拟合识别。',
+      overview: '深入学习 Backtrader 回测框架，掌握趋势跟踪、均值回归两大经典策略类型，学会参数优化与过拟合识别，理解资金管理对策略生存的影响。从"写代码跑回测"到"看懂回测结果并做出理性判断"。',
       modules: [
         {
           id: '3-1',
           title: 'Backtrader 框架入门',
-          duration: '4-5 天',
+          duration: '5-6 天',
           points: [
-            '数据喂入：Pandas DataFrame → Backtrader 数据格式',
-            '策略编写：继承 bt.Strategy，重写 next() 方法',
-            'Cerebro 引擎：adddata/addstrategy/run/plot',
-            '分析器：SharpeRatio、DrawDown、TradeAnalyzer'
+            '安装与入门：pip install backtrader，跑官方 SMA CrossOver 示例验证环境',
+            '数据喂入：Pandas DataFrame → bt.feeds.PandasData()，必须指定 datetime/open/high/low/close/volume 字段映射',
+            '策略类编写：继承 bt.Strategy，必须实现 __init__()（计算指标）和 next()（每个 K 线周期的决策逻辑）',
+            'Cerebro 引擎：bt.Cerebro() 是总控制器，负责 adddata/addstrategy/setcash/setsizer/run/plot',
+            '分析器：cerebro.addanalyzer(bt.analyzers.SharpeRatio) 自动计算回测指标',
+            '观察器：bt.observers.BuySell 自动在图表上标注买卖点',
+            'broker 设置：setcash（初始资金）、setcommission（手续费率）、setslippage（滑点）模拟真实市场',
+            '结果输出：result = cerebro.run()，strategy = result[0]，通过 strategy.analyzers 获取回测指标'
           ],
           knowledgeCards: [
-            { title: '框架选型建议', content: 'Backtrader 文档最全、社区最大，适合入门学原理。VnPy 功能更强但学习曲线陡峭，适合入门后的进阶' },
-            { title: 'next() 是策略心跳', content: '每个 K 线周期调用一次 next()，在这个方法里写你的买入/卖出逻辑。它是策略与市场的交界面' }
+            { title: 'Backtrader vs 手写回测', content: '手写回测 200 行代码只覆盖一种策略，Backtrader 50 行搞定且包含完整分析和图表。框架帮你处理了数据加载、资金管理、佣金计算、图表绘制等所有基础设施，你只需专注策略逻辑。' },
+            { title: 'next() 是策略的心脏', content: '每个 K 线周期（日线=每天、分钟线=每分钟）Backtrader 自动调用一次 next() 方法。在这里用 self.data.close[0] 读当前价格、self.buy() 下单、self.sell() 平仓。策略所有逻辑都在 next() 中展开。' },
+            { title: '__init__ vs next__', content: '__init__() 中声明指标（只需计算一次，Backtrader 自动每个 bar 更新值）；next() 中使用指标值做判断。不要在 next() 中重复计算指标——性能和代码可读性都会变差。' },
+            { title: 'Cerebro = 大脑中枢', content: 'Cerebro 是西班牙语"大脑"的意思。它协调：加载什么数据、用哪个策略、初始资金多少、手续费率多少、要不要画图。adddata → addstrategy → addanalyzer → run → plot，五步搞定一切。' }
           ],
           practice: {
-            title: '实战：第一个 Backtrader 策略',
-            desc: '用 Backtrader 实现双均线策略，对比你在阶段二手动回测的结果，验证一致性'
+            title: '实战：三策略对比回测',
+            desc: '用 Backtrader 实现三个策略同一只股票上对比：(1) SMA 金叉死叉（MA5/20）；(2) SMA 金叉死叉（MA10/60）；(3) MACD 金叉死叉。设置统一初始资金 100 万、手续费 0.03%、无滑点。对比三个策略的夏普比率和最大回撤，输出对比图表。'
           },
           resources: [
             { label: 'Backtrader 官方文档', url: 'https://www.backtrader.com/docu/' },
-            { label: 'Backtrader GitHub', url: 'https://github.com/mementum/backtrader' }
+            { label: 'Backtrader GitHub', url: 'https://github.com/mementum/backtrader' },
+            { label: 'Backtrader 快速入门', url: 'https://www.backtrader.com/docu/quickstart/quickstart/' }
           ]
         },
         {
           id: '3-2',
-          title: '趋势跟踪策略',
-          duration: '4-5 天',
+          title: '趋势跟踪策略——海龟交易法',
+          duration: '5-6 天',
           points: [
-            '海龟交易法：唐奇安通道突破 / ATR 动态止损',
-            '通道突破策略：N 日最高价突破买入',
-            '移动止损：用 ATR 计算止损位置',
-            '金字塔加仓：趋势确认后分批加仓'
+            '海龟交易法的核心理念：截断亏损，让利润奔跑（Cut losses short, let profits run）',
+            '唐奇安通道入场：价格突破过去 N 日（通常 20 日）最高价 → 做多；突破 N 日最低价 → 做空',
+            'ATR（平均真实波幅）用于仓位计算：1 个 ATR 的风险 = 总资金的 1%，通过 ATR 计算应买多少手',
+            '金字塔加仓：入场后每盈利 0.5 个 ATR 加一次仓，最多加 4 次',
+            '移动止损：持仓期间动态更新止损位——多头止损 = 最近 10 日最低价，空头止损 = 最近 10 日最高价',
+            '双均线过滤：只在 EMA25 > EMA300（长期趋势向上）时才做多，避免逆大势操作',
+            '再次入场规则：止损离场后，如果价格再次突破唐奇安通道，可以重新入场',
+            '策略的心理学：海龟交易法胜率不到 40%，需要严格纪律——连续止损 5 次还要坚持执行，90% 的人做不到'
           ],
           knowledgeCards: [
-            { title: '海龟交易法则', content: '1983 年 Richard Dennis 用这个策略证明了"交易员可以培养"。核心理念：截断亏损，让利润奔跑' },
-            { title: '趋势策略天生低胜率', content: '趋势策略胜率通常只有 35-40%，但单笔盈利可能是亏损的 5-10 倍。盈亏比 > 胜率' }
+            { title: '海龟交易法：量化交易的奠基之作', content: '1983 年，传奇交易员 Richard Dennis 与合伙人打赌"交易员可否培养"，招募 23 名普通人，用海龟交易法培训两周后让他们实盘交易。四年后这批"海龟"累计盈利超过 1 亿美元，证明了纪律 > 天赋。' },
+            { title: '趋势策略的胜率悖论', content: '趋势跟踪策略胜率通常只有 35-40%（10 笔交易可能只赚 4 笔），但赚钱的那几笔盈利通常是亏损笔的 5-10 倍。核心在于：在小亏损时果断止损，在大盈利时坚定持有。盈亏比战胜了胜率。' },
+            { title: 'ATR 是动态止损的神器', content: '固定止损（亏 2 元就卖）在波动大时太窄（被频繁震出）、波动小时太宽（亏损过大）。ATR 自动适应市场波动——波动大时止损放宽，波动小时止损收紧。是专业策略的标准做法。' },
+            { title: '为什么多数人无法坚持海龟', content: '连续止损 5-8 次才能等到一次大趋势。绝大多数人在第 5 次止损后就崩溃了——停止执行、修改参数、怀疑策略。海龟实验中最成功的交易者不是最聪明的，而是纪律最强的。' }
           ],
           practice: {
-            title: '实战：海龟交易法回测',
-            desc: '用 Backtrader 实现完整海龟交易法（单位计算、入场、加仓、止损、离场），回测 A 股 5 年，输出所有回测指标'
+            title: '实战：完整海龟交易法 Backtrader 实现',
+            desc: '用 Backtrader 实现经典海龟交易法：唐奇安通道(20日)入场 + ATR(20日)仓位计算 + 金字塔加仓(最多4次) + 移动止损(10日)。回测 A 股沪深 300 指数 5 年数据。输出：累计净值曲线、每年收益率、胜率、最大回撤、夏普比率、最长连续亏损次数。'
           },
           resources: [
-            { label: '海龟交易法则 原书', url: 'https://book.douban.com/subject/3017623/' }
+            { label: '海龟交易法则 原书', url: 'https://book.douban.com/subject/3017623/' },
+            { label: '海龟交易法完整规则', url: 'https://www.investopedia.com/articles/trading/08/turtle-trading.asp' }
           ]
         },
         {
@@ -384,71 +424,90 @@ const ROADMAP_DATA = {
           title: '均值回归策略',
           duration: '3-4 天',
           points: [
-            '布林带突破策略：触及下轨买入、触及上轨卖出',
-            'RSI 超买超卖：RSI<30 买入、RSI>70 卖出',
-            '均值回归 vs 趋势跟踪的适用场景对比',
-            '震荡市 vs 趋势市的策略选择'
+            '均值回归原理：价格偏离均值后会倾向于回归。在低价买入、高价卖出',
+            '布林带策略：收盘价 < 布林下轨 → 买入（超卖）；收盘价 > 布林上轨 → 卖出（超买）',
+            'RSI 策略：RSI < 30 超卖买入、RSI > 70 超买卖出',
+            '震荡市 vs 趋势市识别：用 ADX 指标判断——ADX < 20 震荡市（适合均值回归）、ADX > 40 趋势市（适合趋势跟踪）',
+            '均值回归的风险：价格可能"一直不回归"——在强趋势市中做均值回归 = 接飞刀',
+            '结合布林带 + RSI + ADX：三重过滤减少假信号',
+            '止盈止损策略：盈利目标（如回归均线时止盈）、止损（如偏离超过 3σ 止损）',
+            '多品种分散：同时做 10 个品种的均值回归，避免单品种风险'
           ],
           knowledgeCards: [
-            { title: '市场不是总是趋势的', content: '约 70% 时间市场在震荡，只有 30% 时间有清晰趋势。均值回归策略在震荡市表现更好' },
-            { title: '策略组合 = 全天候', content: '同时跑趋势策略 + 均值回归策略，根据市场波动率动态分配权重，是专业量化基金的常见做法' }
+            { title: '市场 70% 时间在震荡', content: '大约 70% 时间价格在区间内来回波动，只有 30% 时间有清晰趋势。均值回归策略在震荡市中如鱼得水，但一旦遇到强趋势（如 2020 年疫情暴跌、2024 年 AI 暴涨），可能连续亏损。' },
+            { title: 'ADX：市场状态识别器', content: 'Average Directional Index。ADX 不判断方向，只判断趋势强度。<20 是震荡市（用均值回归策略）、20-40 是无明显趋势（谨慎）、>40 是强趋势（用趋势跟踪策略）。学会用 ADX 在两种策略间切换，是成熟交易者的标志。' },
+            { title: '策略轮动：全天候作战', content: '专业量化基金不会只跑一种策略。他们根据 ADX 和波动率动态分配资金：震荡市 70% 资金给均值回归策略 + 30% 给趋势策略；趋势市反过来。这个简单轮动能稳定提升夏普比率。' },
+            { title: '均值回归的最大风险——黑天鹅', content: '2020 年 3 月美股熔断时，布林带下轨不断下移，RSI 在 10 以下持续数日。做均值回归的交易者一路补仓，最终爆仓。永远设置"绝对止损"——不管你用什么信号入场，单笔亏损必须有个硬上限。' }
           ],
           practice: {
-            title: '实战：多策略对比回测',
-            desc: '同一只股票，分别跑趋势策略和均值回归策略，对比不同市场环境下的表现差异'
+            title: '实战：震荡/趋势双模式策略系统',
+            desc: '实现一个双模式策略：(1) 用 ADX 判断当前市场状态；(2) ADX<25 时运行布林带均值回归策略；(3) ADX>40 时运行唐奇安通道趋势跟踪策略；(4) ADX 在 25-40 之间时空仓观望。对比这个双模式策略与纯趋势策略、纯均值策略在 5 年 A 股数据上的表现差异。'
           },
           resources: [
-            { label: 'rqalpha 回测引擎', url: 'https://github.com/ricequant/rqalpha' }
+            { label: 'rqalpha 回测引擎', url: 'https://github.com/ricequant/rqalpha' },
+            { label: 'ADX 详解', url: 'https://www.investopedia.com/terms/a/adx.asp' }
           ]
         },
         {
           id: '3-4',
-          title: '参数优化与过拟合',
+          title: '参数优化与过拟合防范',
           duration: '4-5 天',
           points: [
-            '网格搜索参数优化：遍历参数组合找最优解',
-            '样本内 vs 样本外：训练集优化、测试集验证',
-            '过拟合识别：参数越多、过拟合越严重',
-            'Walk-Forward 分析：滚动窗口验证策略稳定性',
-            '可视化：参数热力图、回测曲线对比'
+            '网格搜索：为每个参数指定候选值，遍历所有组合。如 MA5/10/15/20/25/30 × MA20/40/60/80/100/120 = 36 组，跑 36 次回测找最优组合',
+            '过拟合识别：在训练集上最优的参数组合，在测试集上表现好才算数。训练集收益 300%、测试集收益 5% = 严重过拟合',
+            'Walk-Forward 分析：把数据分成多个时间段，每段"用前 N 月训练、后 1 月测试"，滚动前进。比简单分割更接近实盘',
+            '参数热力图：用 matplotlib 画参数 × 夏普比率的热力图，一眼看出哪些参数区域表现稳定',
+            '参数稳健性：好的参数不是一个"尖峰"（换个参数就崩），而是一个"高原"（附近参数表现都不错）',
+            '防止过拟合的铁律：① 保留至少 30% 数据做样本外测试 ② 参数数量 ≤ 3 个 ③ 样本内外收益差距 < 30%',
+            '奥卡姆剃刀原则：简单策略 > 复杂策略。能用 2 个参数解决的事，绝不用 5 个',
+            'Bonferroni 校正：如果你测试了 100 组参数，纯靠运气也大概率能找到"看起来很好"的。统计检验要做多重比较校正'
           ],
           knowledgeCards: [
-            { title: '过拟合是量化最大陷阱', content: '回测收益率 300% 的参数组合，拿到实盘可能亏损。始终留 30% 数据做样本外测试' },
-            { title: '奥卡姆剃刀原则', content: '简单策略 > 复杂策略。参数越多，过拟合越严重。能用 2 个参数解决的事，绝不用 5 个' }
+            { title: '过拟合是量化交易的终极陷阱', content: '回测收益 300%、夏普 5.0、最大回撤 5%——看到这种结果先别兴奋，大概率是过拟合。任何一个策略，只要参数调得够多，总能在回测上找到完美曲线。但拿到实盘第二天就亏钱。区别在于：你的策略学到了市场的真实规律，还是学会了回测数据的噪音。' },
+            { title: 'Walk-Forward > 简单分割', content: '固定分割（训练 2019-2022，测试 2023-2024）只能告诉你策略在"后一段"表现如何。Walk-Forward 测试了策略在多个不同市场环境下的表现：2020 年疫情暴跌中用前几年数据训练、2021 年牛市中用包含 2020 的数据训练……接近真实演进过程。' },
+            { title: '参数高原 vs 参数尖峰', content: '画出参数热力图后，如果夏普比率最高的区域是一个"尖峰"——仅 5-6 日/20-21 日组合好，其他都差——这是过拟合的信号。好的策略应该形成一个"高原"：短期均线在 5-15 日、长期在 20-60 日的范围内表现都不错。' },
+            { title: '三个铁律救你命', content: '1. 保留 30% 数据不碰（样本外），只在最后验证一次；2. 参数不超过 3 个——少即是多；3. 样本内外收益差距超过 30%，无论样本内多漂亮，直接扔掉。这三条能过滤掉 90% 的虚假策略。' }
           ],
           practice: {
-            title: '实战：参数稳健性测试',
-            desc: '对双均线策略做参数网格搜索（短期 5-30、长期 30-120），画热力图，分析样本内外表现差异'
+            title: '实战：参数稳健性完整检验',
+            desc: '对双均线策略做完整检验：(1) 网格搜索：短均线候选 [5,10,15,20,25,30]，长均线候选 [20,40,60,80,100,120]，共 36 组回测；(2) 画出夏普比率热力图；(3) 识别"高原区" vs "尖峰区"；(4) 选高原区中心参数做 Walk-Forward 分析（滚动窗口，每 2 年训练+后 6 月测试）；(5) 对比简单分割 vs Walk-Forward 结果差异。'
           },
           resources: [
-            { label: '过拟合详解', url: 'https://www.investopedia.com/terms/o/overfitting.asp' }
+            { label: '过拟合详解', url: 'https://www.investopedia.com/terms/o/overfitting.asp' },
+            { label: 'Walk-Forward 分析教程', url: 'https://www.backtrader.com/blog/posts/2016-07-30-timeframe-analyzer/timeframe-analyzer/' }
           ]
         },
         {
           id: '3-5',
-          title: '资金管理与风控',
+          title: '资金管理与风控入门',
           duration: '3-4 天',
           points: [
-            '固定仓位：每次交易固定比例资金',
-            '凯利公式：根据胜率和盈亏比计算最优仓位',
-            '风险平价：每笔交易承担相同风险',
-            '最大回撤熔断：回撤超过阈值暂停交易',
-            '单品种集中度限制'
+            '固定仓位：每次交易固定金额/股数。简单直观，但不考虑市场波动率变化',
+            '凯利公式：最优仓位 = (胜率×盈亏比 - 败率)/盈亏比。理论上最优，但实盘建议用半凯利(f/2)',
+            '风险平价：每笔交易承受相同风险（如总资金 1%）。在不同品种间分配时自动调整仓位大小',
+            '最大回撤熔断：当日亏损 > 5% 或周亏损 > 10% 时自动暂停交易。用代码锁定，不给自己动摇的机会',
+            '单品种集中度限制：任一品种持仓不超过总资金 20%。避免踩雷（如 2020 年瑞幸造假事件）',
+            'Black-Scholes 思维迁移：用波动率动态调整仓位——波动大时减仓、波动小时加仓',
+            '组合层面风控：不是看单策略回撤，是看所有策略加起来的组合回撤。策略间可能存在相关性',
+            '复盘机制：每周统计所有止损交易的原因，分类分析（市场突变？参数问题？信号噪音？）'
           ],
           knowledgeCards: [
-            { title: '仓位管理 ≈ 生存管理', content: '即使策略胜率 60%，满仓 all-in 也随时可能爆仓。仓位管理决定了你能在市场活多久' },
-            { title: '凯利公式', content: 'f = (bp - q) / b，其中 b=盈亏比, p=胜率, q=1-p。实际使用取 f/2 更保守安全' }
+            { title: '仓位管理 = 生存管理', content: '即使你有一个胜率 60% 的"好策略"，满仓 all-in 也随时可能因为连续 3 笔亏损就爆仓。仓位管理决定了你在市场中能活多久——活得够久，概率的天平才会向你倾斜。' },
+            { title: '凯利公式的正确用法', content: '凯利公式告诉你"最优下注比例"，但股市不是赌场——胜率、盈亏比都在变化且无法精确估计。所以实战中永远用半凯利(f/2)甚至四分之一凯利(f/4)。保守的凯利胜过激进的爆仓。' },
+            { title: '风控规则必须写死在代码里', content: '不要相信自己在连续亏损时会"理性判断"。当你的个人账户亏了 30%，你的大脑会自动合理化"再扛一扛就会反弹"。风控逻辑必须写进代码自动执行——if drawdown > 5%: stop_trading()。' },
+            { title: '回撤的心理学', content: '10% 的回撤在数字上看起来不大，但如果是 100 万账户亏了 10 万，大多数人已经开始失眠。你的策略最大回撤应该是你能"睡得着觉"的水平，而不是数学上的最优值。' }
           ],
           practice: {
-            title: '实战：仓位策略对比',
-            desc: '同一策略分别用固定仓位、凯利公式、风险平价跑回测，对比收益与回撤的差异'
+            title: '实战：仓位策略大比拼',
+            desc: '同一策略（海龟交易法），对比 4 种仓位管理：(1) 固定仓位（每次 10% 资金）；(2) 凯利公式（全凯利）；(3) 半凯利；(4) 风险平价（每笔风险 = 总资金 1%）。回测 5 年数据，对比：年化收益、最大回撤、夏普比率、最长回撤恢复期。你会看到——半凯利和风险平价的回撤远小于全凯利，而收益并没有显著降低。'
           },
           resources: [
-            { label: '凯利公式详解', url: 'https://www.investopedia.com/terms/k/kellycriterion.asp' }
+            { label: '凯利公式详解', url: 'https://www.investopedia.com/terms/k/kellycriterion.asp' },
+            { label: '风险管理基础', url: 'https://www.investopedia.com/terms/r/riskmanagement.asp' }
           ]
         }
       ],
-      milestone: '用 Backtrader 跑海龟交易法回测 A 股 5 年，输出夏普比率和最大回撤'
+      milestone: '用 Backtrader 实现海龟交易法完整版，完成参数优化与 Walk-Forward 验证，加入风险平价仓位管理，输出专业的回测报告'
     },
 
     {
@@ -837,14 +896,19 @@ const ROADMAP_DATA = {
       { name: 'VnPy 社区', url: 'https://www.vnpy.com/', desc: '国内最大量化开源社区' }
     ],
     githubRepos: [
-      { name: 'awesome-quant', url: 'https://github.com/t0suj4/awesome-quant', stars: '21k+', desc: '量化资源索引大全，必看' },
-      { name: 'backtrader', url: 'https://github.com/mementum/backtrader', stars: '15k+', desc: 'Python 回测框架首选' },
-      { name: 'vnpy', url: 'https://github.com/vnpy/vnpy', stars: '27k+', desc: '国内第一大实盘平台' },
-      { name: 'pandas-ta', url: 'https://github.com/twopirllc/pandas-ta', stars: '5k+', desc: '200+ 技术指标库' },
-      { name: 'machine-learning-for-trading', url: 'https://github.com/stefan-jansen/machine-learning-for-trading', stars: '15k+', desc: 'ML+量化圣经级代码' },
-      { name: 'nautilus_trader', url: 'https://github.com/nautechsystems/nautilus_trader', stars: '4k+', desc: '高性能架构参考' },
-      { name: 'jesse-ai', url: 'https://github.com/jesse-ai/jesse', stars: '6k+', desc: '加密货币量化全流程' },
-      { name: 'StockTradingStrategy', url: 'https://github.com/jimmybow/StockTradingStrategy', stars: '3k+', desc: '策略源码入门必读' }
+      { name: 'awesome-quant', url: 'https://github.com/wilsonfreitas/awesome-quant', stars: '26.4k', desc: '量化资源索引大全，覆盖 Python/R/C++/Julia，必看' },
+      { name: 'backtrader', url: 'https://github.com/mementum/backtrader', stars: '21.7k', desc: 'Python 事件驱动回测框架首选，文档最全' },
+      { name: 'vnpy', url: 'https://github.com/vnpy/vnpy', stars: '40.9k', desc: '国内第一大实盘量化平台，40+ 交易接口' },
+      { name: 'Qlib', url: 'https://github.com/microsoft/qlib', stars: '43.4k', desc: '微软 AI 量化平台，内置 20+ SOTA 模型' },
+      { name: 'freqtrade', url: 'https://github.com/freqtrade/freqtrade', stars: '50.7k', desc: '加密货币开源交易机器人，WebUI+Telegram' },
+      { name: 'ccxt', url: 'https://github.com/ccxt/ccxt', stars: '42.6k', desc: '100+ 交易所统一 API（Python/JS/PHP/C#/Go）' },
+      { name: 'machine-learning-for-trading', url: 'https://github.com/stefan-jansen/machine-learning-for-trading', stars: '17.4k', desc: 'ML+量化圣经级代码，150+ Notebook' },
+      { name: 'yfinance', url: 'https://github.com/ranaroussi/yfinance', stars: '23.8k', desc: 'Yahoo Finance 数据接口，美股数据首选' },
+      { name: 'FinRL', url: 'https://github.com/AI4Finance-Foundation/FinRL', stars: '15.2k', desc: '深度强化学习量化框架，NeurIPS 论文' },
+      { name: 'zipline-reloaded', url: 'https://github.com/stefan-jansen/zipline-reloaded', stars: '1.8k', desc: 'Quantopian 遗產——事件驱动回测引擎' },
+      { name: 'nautilus_trader', url: 'https://github.com/nautechsystems/nautilus_trader', stars: '23k', desc: 'Rust+Python 高性能交易引擎，工业级' },
+      { name: 'jesse', url: 'https://github.com/jesse-ai/jesse', stars: '7.9k', desc: '加密货币全流程，内置 AI 策略助手' },
+      { name: 'pyfolio-reloaded', url: 'https://github.com/stefan-jansen/pyfolio-reloaded', stars: '591', desc: '投资组合风险分析，tear sheet 报告' }
     ],
     pitfalls: [
       '别一上来就想赚钱——90% 新手死在"跳过回测直接实盘"',
