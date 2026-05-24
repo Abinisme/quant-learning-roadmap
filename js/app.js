@@ -186,14 +186,18 @@ const App = (() => {
   function processGlossaryTerms(text) {
     if (!ROADMAP_DATA.glossary) return text;
     const keys = getGlossaryKeys();
-    let result = text;
-    keys.forEach(key => {
-      const regex = new RegExp(`(${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
-      const entry = ROADMAP_DATA.glossary[key];
+    if (keys.length === 0) return text;
+
+    // 构建单一合并正则，长词在前，每处文本只匹配一次，彻底避免"前复权"→"复权"的嵌套替换
+    const escaped = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const combined = new RegExp(`(${escaped.join('|')})`, 'g');
+
+    return text.replace(combined, (match) => {
+      const entry = ROADMAP_DATA.glossary[match];
+      if (!entry) return match;
       const wikiClass = entry.wikiUrl ? ' has-wiki' : '';
-      result = result.replace(regex, `<span class="term-highlight${wikiClass}" data-glossary="${key}">$1</span>`);
+      return `<span class="term-highlight${wikiClass}" data-glossary="${match}">${match}</span>`;
     });
-    return result;
   }
 
   // ==================== 术语浮窗 ====================
