@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>经典技术指标深度解析 | MACD · RSI · 布林带 · KDJ · ATR</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg:#0a0e14; --bg2:#121821; --bg3:#1a2332; --bg4:#222d3d;
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#556274;
+  --border:#263040; --border2:#334155;
+  --cyan:#00d4ff; --purple:#8b5cf6; --green:#3fb950; --red:#f85149;
+  --orange:#f0883e; --yellow:#e5c07b;
+  --cyan-bg:rgba(0,212,255,.05); --purple-bg:rgba(139,92,246,.05); --green-bg:rgba(63,185,80,.05); --red-bg:rgba(248,81,73,.05);
+  --radius:10px; --radius-sm:6px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SF Mono','Consolas','Monaco','Courier New',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.75;min-height:100vh}
+
+/* Header */
+.header{position:sticky;top:0;z-index:100;background:rgba(10,14,20,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+.header-icon{font-size:1.4rem}
+.header h1{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-sub{font-size:.72rem;color:var(--text3)}
+
+/* Layout */
+.layout{max-width:1400px;margin:0 auto;padding:20px 16px 60px;display:flex;gap:20px;align-items:flex-start}
+.sidebar{position:sticky;top:80px;width:220px;flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar-head{padding:14px 14px 8px;font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:600}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.78rem;color:var(--text2);cursor:pointer;border-left:3px solid transparent;transition:all .18s;text-decoration:none}
+.sidebar-link:hover{background:var(--cyan-bg);color:var(--text)}
+.sidebar-link.active{color:var(--cyan);background:var(--cyan-bg);border-left-color:var(--cyan)}
+.sidebar-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* Content */
+.content{flex:1;min-width:0}
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:18px;overflow:hidden;scroll-margin-top:80px;transition:border-color .3s}
+.section.expanded{border-color:rgba(0,212,255,.12)}
+.section-head{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;transition:background .2s}
+.section-head:hover{background:rgba(255,255,255,.02)}
+.section-icon{font-size:1.4rem;flex-shrink:0;width:32px;text-align:center}
+.section-info{flex:1;min-width:0}
+.section-info h2{font-size:1.02rem;font-weight:700}
+.section-info p{font-size:.72rem;color:var(--text2);margin-top:2px}
+.section-arrow{color:var(--text3);transition:transform .3s;font-size:.8rem}
+.section.expanded .section-arrow{transform:rotate(180deg);color:var(--cyan)}
+.section-body{max-height:0;overflow:hidden;transition:max-height .55s cubic-bezier(.4,0,.2,1)}
+.section.expanded .section-body{max-height:20000px}
+.section-inner{padding:0 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Cards */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:15px}
+.card.full{grid-column:1/-1}
+.card-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1.1px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-label.c{color:var(--cyan)}.card-label.g{color:var(--green)}.card-label.r{color:var(--red)}.card-label.p{color:var(--purple)}.card-label.o{color:var(--orange)}
+.card ul{list-style:none}.card li{font-size:.78rem;color:var(--text2);padding:4px 0 4px 18px;position:relative;line-height:1.65}
+.card li::before{content:'▸';position:absolute;left:0;color:var(--cyan);font-size:.6rem;top:6px}
+.card p{font-size:.78rem;color:var(--text2);line-height:1.7}
+
+/* Highlight boxes */
+.hl{background:var(--cyan-bg);border:1px solid rgba(0,212,255,.15);border-radius:var(--radius-sm);padding:12px 14px;font-size:.78rem;color:var(--text2);line-height:1.7;margin:6px 0}
+.hl.g{background:var(--green-bg);border-color:rgba(63,185,80,.15);color:var(--green)}
+.hl.r{background:var(--red-bg);border-color:rgba(248,81,73,.15);color:var(--red)}
+.hl.p{background:var(--purple-bg);border-color:rgba(139,92,246,.15);color:var(--purple)}
+
+/* Formula */
+.formula{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--mono);font-size:.74rem;color:var(--cyan);text-align:center;margin:8px 0;letter-spacing:.3px;overflow-x:auto}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse;font-size:.76rem;margin:6px 0}
+.data-table th{background:rgba(0,212,255,.06);color:var(--cyan);padding:6px 10px;text-align:left;font-weight:600;font-size:.7rem}
+.data-table td{padding:6px 10px;border-top:1px solid var(--border);color:var(--text2)}
+.data-table tr:hover td{background:rgba(255,255,255,.01)}
+.data-table .buy{color:var(--green)}.data-table .sell{color:var(--red)}
+
+/* Steps */
+.steps{}.step{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--cyan-bg);border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.65rem;color:var(--cyan);flex-shrink:0}
+.step-content{font-size:.78rem;color:var(--text2);line-height:1.6;padding-top:2px}
+
+/* Compare grid */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+
+/* Footer */
+.footer{text-align:center;padding:24px 16px;border-top:1px solid var(--border);color:var(--text3);font-size:.72rem;line-height:1.8}
+
+/* Responsive */
+@media(max-width:900px){.sidebar{display:none}.section-inner{grid-template-columns:1fr}.compare-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.header{padding:8px 10px}.header h1{font-size:.95rem}.section-head{padding:12px 14px;gap:8px}.section-info h2{font-size:.9rem}.section-inner{padding:0 10px 14px;gap:10px}.card{padding:10px}.card li{font-size:.72rem}.hl{font-size:.72rem;padding:10px 12px}.data-table{font-size:.68rem;display:block;overflow-x:auto}.formula{font-size:.66rem}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <span class="header-icon">📊</span>
+  <h1>经典技术指标深度解析</h1>
+  <span class="header-sub">MACD · RSI · 布林带 · KDJ · ATR · 共振策略</span>
+</header>
+
+<div class="layout">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-head">指标目录</div>
+  <a class="sidebar-link active" href="#s1"><span class="sidebar-dot" style="background:var(--cyan)"></span>概览与对比</a>
+  <a class="sidebar-link" href="#s2"><span class="sidebar-dot" style="background:var(--yellow)"></span>MACD</a>
+  <a class="sidebar-link" href="#s3"><span class="sidebar-dot" style="background:var(--orange)"></span>RSI</a>
+  <a class="sidebar-link" href="#s4"><span class="sidebar-dot" style="background:var(--purple)"></span>布林带</a>
+  <a class="sidebar-link" href="#s5"><span class="sidebar-dot" style="background:var(--green)"></span>KDJ</a>
+  <a class="sidebar-link" href="#s6"><span class="sidebar-dot" style="background:var(--red)"></span>ATR</a>
+  <a class="sidebar-link" href="#s7"><span class="sidebar-dot" style="background:#e5c07b"></span>共振策略</a>
+  <a class="sidebar-link" href="#s8"><span class="sidebar-dot" style="background:var(--red)"></span>常见陷阱</a>
+</nav>
+
+<main class="content">
+
+<!-- S1: 概览与对比 -->
+<section class="section expanded" id="s1">
+  <div class="section-head" onclick="toggle('s1')">
+    <div class="section-icon">📋</div>
+    <div class="section-info"><h2>指标概览与分类对比</h2><p>五大经典指标 · 适用场景 · 一句话定位</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card full">
+      <div class="card-label c"><i class="fa-solid fa-table"></i> 五大指标速览</div>
+      <table class="data-table">
+        <tr><th>指标</th><th>类型</th><th>核心用途</th><th>适用市场</th><th>信号频率</th><th>一句话</th></tr>
+        <tr><td><strong>MACD</strong></td><td>趋势跟踪</td><td>判断趋势方向与强度</td><td>趋势市最佳</td><td>中</td><td>"用两均线的差值画第三根线"</td></tr>
+        <tr><td><strong>RSI</strong></td><td>震荡指标</td><td>超买超卖、动能强弱</td><td>震荡市最佳</td><td>高</td><td>"过去N天涨了多少 vs 跌了多少"</td></tr>
+        <tr><td><strong>布林带</strong></td><td>波动率+通道</td><td>价格极端位置判断</td><td>震荡市</td><td>中</td><td>"用标准差做弹性围栏"</td></tr>
+        <tr><td><strong>KDJ</strong></td><td>震荡指标</td><td>短线超买超卖、背离</td><td>短线震荡</td><td>极高</td><td>"用最高最低价定位收盘价位置"</td></tr>
+        <tr><td><strong>ATR</strong></td><td>波动率</td><td>止损设置、仓位计算</td><td>所有市场</td><td>—</td><td>"不告诉你方向，只告诉你波动多大"</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-label o"><i class="fa-solid fa-scale-balanced"></i> 趋势指标 vs 震荡指标</div>
+      <div class="compare-grid">
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--cyan);margin-bottom:4px">趋势类（MACD、MA）</div>
+          <ul><li>在趋势市中方向明确、信号可靠</li><li>在震荡市中频繁假信号、反复止损</li><li>信号滞后于价格（均线的本质属性）</li><li>适合中长线、不适合短线频繁交易</li></ul>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--orange);margin-bottom:4px">震荡类（RSI、KDJ）</div>
+          <ul><li>在震荡市中精准捕捉转折点</li><li>在强趋势市中持续"超买/超卖"，信号失效</li><li>信号领先于价格（反映动能变化）</li><li>适合短线、对噪音敏感</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label c"><i class="fa-solid fa-puzzle-piece"></i> 互补搭配原则</div>
+      <p>单一指标永远不够——趋势指标+震荡指标+波动率指标的组合才能覆盖不同市场环境。经典铁三角：<strong>MACD（方向）+ RSI（力度）+ ATR（仓位）</strong>。</p>
+      <div class="hl c" style="margin-top:8px;font-size:.74rem">当 MACD 零轴上方 + RSI 40-60 + ATR 低位收窄 → 趋势初期即将启动，是最佳入场窗口。</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- S2: MACD -->
+<section class="section expanded" id="s2">
+  <div class="section-head" onclick="toggle('s2')">
+    <div class="section-icon" style="color:var(--yellow)">📈</div>
+    <div class="section-info"><h2>MACD — 指数平滑异同移动平均线</h2><p>Gerald Appel · 1979 · 由三条线组成的趋势核心指标</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card">
+      <div class="card-label c"><i class="fa-solid fa-calculator"></i> 计算原理（三步）</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><strong>DIF</strong> = EMA(12) - EMA(26) ——快慢均线差值，正值=多头市场</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>DEA</strong> = EMA(DIF, 9) ——对 DIF 再做一次平滑，信号线</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>柱状线</strong> = 2 × (DIF - DEA) ——差值放大 2 倍，红柱=多头加强，绿柱=空头加强</div></div>
+      </div>
+      <div class="formula" style="margin-top:10px">MACD柱变化 = 今天的柱 - 昨天的柱<br>柱由绿翻红且变大 → 多头动能增强（买入确认）</div>
+    </div>
+    <div class="card">
+      <div class="card-label g"><i class="fa-solid fa-signal"></i> 买卖信号与实战用法</div>
+      <table class="data-table">
+        <tr><th>信号</th><th>条件</th><th>可靠性</th></tr>
+        <tr><td class="buy"><strong>金叉买入</strong></td><td>DIF 从下方向上穿越 DEA</td><td>中（需结合零轴位置判断）</td></tr>
+        <tr><td class="sell"><strong>死叉卖出</strong></td><td>DIF 从上方向下穿越 DEA</td><td>中</td></tr>
+        <tr><td><strong>零轴判断</strong></td><td>DIF > 0 → 多头市场；DIF < 0 → 空头市场</td><td>高（趋势环境判断）</td></tr>
+        <tr><td class="buy"><strong>零轴上金叉</strong></td><td>DIF 在零轴上方金叉 DEA</td><td>较高（顺势做多）</td></tr>
+        <tr><td class="sell"><strong>零轴下死叉</strong></td><td>DIF 在零轴下方死叉 DEA</td><td>较高（顺势做空）</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-triangle-exclamation"></i> MACD 背离——最强大的信号但最难判断</div>
+      <div class="compare-grid">
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--red);margin-bottom:4px">顶背离 → 见顶信号</div>
+          <p>股价创新高，但 MACD 的 DIF 或柱状线高点<strong>越来越低</strong>。说明上涨动能衰竭，趋势可能反转。背离次数越多（通常 2-3 次），反转概率越大。</p>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--green);margin-bottom:4px">底背离 → 见底信号</div>
+          <p>股价创新低，但 MACD 的 DIF 或柱状线低点<strong>越来越高</strong>。说明下跌动能衰竭，趋势可能反转。底背离后需要放量确认——缩量底背离可能是陷阱。</p>
+        </div>
+      </div>
+      <div class="hl" style="margin-top:10px"><strong>⚠️ 实战要点</strong>：背离是"必要条件"不是"充分条件"。顶背离后股价可能继续涨（钝化），需要等 MACD 死叉确认。底背离后可能继续跌，需要等放量阳线确认。</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- S3: RSI -->
+<section class="section expanded" id="s3">
+  <div class="section-head" onclick="toggle('s3')">
+    <div class="section-icon" style="color:var(--orange)">📊</div>
+    <div class="section-info"><h2>RSI — 相对强弱指标</h2><p>Welles Wilder · 1978 · 0-100 区间的动能振荡器</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card">
+      <div class="card-label c"><i class="fa-solid fa-calculator"></i> 计算原理</div>
+      <div class="formula">
+        RS = N 日内平均上涨幅度 / N 日内平均下跌幅度<br>
+        RSI = 100 - 100/(1 + RS)
+      </div>
+      <p style="margin-top:8px">默认参数 N=14（Wilder 原版）。RSI 的核心思想：如果最近 14 天几乎天天涨，RS≈无穷大→RSI≈100；天天跌→RS≈0→RSI≈0。</p>
+      <div class="hl" style="margin-top:8px">短线交易可用 N=6-9（更敏感）；中长线用 N=14-21（更平滑）。周期越短假信号越多。</div>
+    </div>
+    <div class="card">
+      <div class="card-label o"><i class="fa-solid fa-gauge-high"></i> 信号体系与参数配置</div>
+      <table class="data-table">
+        <tr><th>区域</th><th>RSI 范围</th><th>含义</th><th>操作</th></tr>
+        <tr><td class="sell" style="font-weight:700">超买区</td><td>> 70</td><td>市场过热，买盘可能枯竭</td><td class="sell">考虑卖出</td></tr>
+        <tr><td style="font-weight:700">强势区</td><td>50-70</td><td>多头占优但未过热</td><td>持有或轻仓</td></tr>
+        <tr><td style="font-weight:700">中性区</td><td>30-70</td><td>方向不明确</td><td>观望</td></tr>
+        <tr><td style="font-weight:700">弱势区</td><td>30-50</td><td>空头占优但未恐慌</td><td>轻仓或观望</td></tr>
+        <tr><td class="buy" style="font-weight:700">超卖区</td><td>< 30</td><td>市场恐慌，卖盘可能枯竭</td><td class="buy">考虑买入</td></tr>
+      </table>
+      <p style="font-size:.7rem;color:var(--text3);margin-top:6px">牛市/强趋势中 RSI 可持续 70-80+，此时超买信号不可靠。熊市/暴跌中 RSI 可跌至 10-20 且持续数日。</p>
+    </div>
+    <div class="card full">
+      <div class="card-label g"><i class="fa-solid fa-lightbulb"></i> RSI 的高级用法</div>
+      <div class="compare-grid">
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--cyan);margin-bottom:4px">RSI 背离</div>
+          <p>与 MACD 背离同理——价格创新高但RSI高点下移=顶背离；价格创新低但RSI低点上移=底背离。RSI 背离通常比 MACD 背离更早出现。</p>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--purple);margin-bottom:4px">Failure Swing（失败摆动）</div>
+          <p>RSI 突破 70 后回落→再次上攻但未破 70→再下跌。这是比单纯 RSI>70 更可靠的见顶信号。Wilder 本人最推崇的信号。</p>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- S4: 布林带 -->
+<section class="section" id="s4">
+  <div class="section-head" onclick="toggle('s4')">
+    <div class="section-icon" style="color:var(--purple)">🎗️</div>
+    <div class="section-info"><h2>布林带 — Bollinger Bands</h2><p>John Bollinger · 1980s · 以标准差构建的弹性通道</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card">
+      <div class="card-label c"><i class="fa-solid fa-ruler"></i> 构成与参数</div>
+      <div class="formula">
+        中轨 = MA(20)<br>
+        上轨 = 中轨 + 2 × σ(20)<br>
+        下轨 = 中轨 - 2 × σ(20)
+      </div>
+      <p style="margin-top:8px">σ 是过去 20 日的收盘价标准差。上轨和下轨之间包含了约 <strong>95%</strong> 的价格（假设正态分布）。价格突破上/下轨属于小概率事件。</p>
+      <p style="font-size:.74rem;color:var(--text3);margin-top:6px">参数 20/2 是标准配置。短线可调整为 10/1.5（更窄更敏感），长线可调整为 50/2.5（更宽更稳定）。</p>
+    </div>
+    <div class="card">
+      <div class="card-label p"><i class="fa-solid fa-compress"></i> 核心信号——带宽是关键</div>
+      <table class="data-table">
+        <tr><th>信号</th><th>条件</th><th>含义</th></tr>
+        <tr><td><strong>带宽收窄</strong></td><td>上轨-下轨处于历史低位</td><td style="color:var(--orange)">暴风雨前的宁静——即将大幅波动</td></tr>
+        <tr><td><strong>触及上轨</strong></td><td>收盘价 > 上轨</td><td>超买，但强势股可沿上轨持续上行</td></tr>
+        <tr><td><strong>触及下轨</strong></td><td>收盘价 < 下轨</td><td>超卖，但弱势股可沿下轨持续下行</td></tr>
+        <tr><td class="buy"><strong>下轨反弹</strong></td><td>触下轨后阳线收回</td><td class="buy">均值回归买入信号</td></tr>
+        <tr><td class="sell"><strong>上轨回落</strong></td><td>触上轨后阴线收回</td><td class="sell">均值回归卖出信号</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-lightbulb"></i> 布林带的两种互补策略</div>
+      <div class="compare-grid">
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--green);margin-bottom:4px">震荡市：均值回归</div>
+          <p>价格在上下轨之间来回波动。触及下轨→买入，回到中轨或触及上轨→卖出。核心前提：市场没有明显趋势。</p>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:.8rem;color:var(--cyan);margin-bottom:4px">趋势市：突破跟随</div>
+          <p>带宽收窄后突然放大+价格突破上轨→趋势启动，顺势做多。此时不要做均值回归（价格会沿上轨持续上行）。</p>
+        </div>
+      </div>
+      <div class="hl" style="margin-top:10px"><strong>⚠️ 关键</strong>：带宽收窄（Squeeze）是布林带最有价值的信号——它告诉你"暴风雨要来了"，但不告诉你方向。方向需要由 MACD 或突破方向来确认。</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- S5: KDJ -->
+<section class="section" id="s5">
+  <div class="section-head" onclick="toggle('s5')">
+    <div class="section-icon" style="color:var(--green)">📉</div>
+    <div class="section-info"><h2>KDJ — 随机指标</h2><p>George Lane · 1950s · 由 K/D/J 三线构成的短线利器</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card">
+      <div class="card-label c"><i class="fa-solid fa-calculator"></i> 计算原理（直观版）</div>
+      <div class="formula">
+        RSV = (收盘价 - N日最低) / (N日最高 - N日最低) × 100<br>
+        K = 2/3 × 前K + 1/3 × RSV<br>
+        D = 2/3 × 前D + 1/3 × K<br>
+        J = 3K - 2D
+      </div>
+      <p style="margin-top:8px">默认 N=9。RSV（Raw Stochastic Value）代表收盘价在过去 9 日价格区间中的位置。收盘在最高点→RSV=100；收在最低点→RSV=0。</p>
+    </div>
+    <div class="card">
+      <div class="card-label g"><i class="fa-solid fa-signal"></i> 信号系统</div>
+      <table class="data-table">
+        <tr><th>信号</th><th>条件</th><th>可靠性</th></tr>
+        <tr><td class="buy"><strong>金叉买入</strong></td><td>K 线从下方向上穿越 D 线</td><td>中低（需看位置）</td></tr>
+        <tr><td class="sell"><strong>死叉卖出</strong></td><td>K 线从上方向下穿越 D 线</td><td>中低</td></tr>
+        <tr><td class="buy"><strong>低位金叉</strong></td><td>K/D 在 20 以下金叉</td><td>较高（超卖区转折）</td></tr>
+        <tr><td class="sell"><strong>高位死叉</strong></td><td>K/D 在 80 以上死叉</td><td>较高（超买区转折）</td></tr>
+        <tr><td><strong>J 值极端</strong></td><td>J > 100 或 J < 0</td><td>极值反转信号</td></tr>
+        <tr><td style="color:var(--orange)"><strong>钝化</strong></td><td>K/D 持续在 80+ 或 20- 多日</td><td style="color:var(--orange)">强趋势中常见，此时信号失效</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-triangle-exclamation"></i> KDJ 的特殊注意事项</div>
+      <div class="compare-grid">
+        <div>
+          <p><strong style="color:var(--red)">钝化陷阱</strong>：强势上涨中 KDJ 会持续在 80-100 钝化数周，如果此时做空是逆势操作。强趋势中 KDJ 的超买信号应该被忽略，只用金叉/死叉判断短期节奏。</p>
+        </div>
+        <div>
+          <p><strong style="color:var(--green)">最佳场景</strong>：KDJ 在横盘震荡市中表现极好——K/D 在 20-80 之间规律摆动，低吸高抛收益稳定。但一旦趋势启动，应切换至 MACD 或趋势类指标。</p>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- S6: ATR -->
+<section class="section" id="s6">
+  <div class="section-head" onclick="toggle('s6')">
+    <div class="section-icon" style="color:var(--red)">📏</div>
+    <div class="section-info"><h2>ATR — 平均真实波幅</h2><p>Welles Wilder · 1978 · 衡量波动率而非方向的独特指标</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card">
+      <div class="card-label c"><i class="fa-solid fa-ruler-combined"></i> 计算原理</div>
+      <div class="formula">
+        TR = max(当日高-当日低, |当日高-昨收|, |当日低-昨收|)<br>
+        ATR = TR 的 N 日移动平均（默认 N=14）
+      </div>
+      <p style="margin-top:8px">True Range 的三个值覆盖了：当日振幅、向上跳空、向下跳空。跳空是 ATR 区别于普通振幅计算的关键——它确保隔夜风险被纳入度量。</p>
+      <p style="font-size:.74rem;color:var(--text3);margin-top:6px">ATR 单位与价格相同（如 ATR=3.5 元）。它不告诉方向——仅告诉你"市场在震动"。</p>
+    </div>
+    <div class="card">
+      <div class="card-label r"><i class="fa-solid fa-shield-halved"></i> ATR 的核心用途</div>
+      <table class="data-table">
+        <tr><th>用途</th><th>方法</th><th>说明</th></tr>
+        <tr><td><strong>动态止损</strong></td><td>止损 = 入场价 ± 2×ATR</td><td>海龟交易法的核心——波动大时放宽止损，波动小时收紧</td></tr>
+        <tr><td><strong>仓位计算</strong></td><td>仓位 = 风险金额 / (ATR × 乘数)</td><td>确保不同品种承担相同风险</td></tr>
+        <tr><td><strong>趋势强度</strong></td><td>ATR 上升 = 趋势加速</td><td>ATR 上升说明动能加强，顺势持有</td></tr>
+        <tr><td><strong>突破确认</strong></td><td>突破 + ATR 放大 = 真突破</td><td>假突破通常伴随着 ATR 下降</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-lightbulb"></i> ATR 与其他指标的协同</div>
+      <p>ATR 不产生买卖信号，但它能让其他指标的信号"量化"。RSI 超卖了→买入多少？布林下轨反弹了→止损放哪？这些问题的答案都需要 ATR 参与。ATR 是量化交易中唯一一个"不告诉你做什么但告诉你做多少"的指标。</p>
+    </div>
+  </div></div>
+</section>
+
+<!-- S7: 共振策略 -->
+<section class="section" id="s7">
+  <div class="section-head" onclick="toggle('s7')">
+    <div class="section-icon" style="color:#e5c07b">🎯</div>
+    <div class="section-info"><h2>多指标共振策略</h2><p>组合使用 · 三重过滤 · 信号质量提升</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card full">
+      <div class="card-label c"><i class="fa-solid fa-filter"></i> 三重过滤法——从 50% 胜率到 65%</div>
+      <p style="margin-bottom:10px">单指标准确率通常 45-55%。三重过滤可以将准确率提升至 60-70%，代价是信号频率大幅降低（从每天 2 次降至每周 1-2 次）。</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><strong>趋势过滤器（MACD 零轴）</strong>：DIF > 0 → 只做多/不做空；DIF < 0 → 只做空/不做多。第一层确保你在做"顺大势"的交易。</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>震荡过滤器（RSI/KDJ）</strong>：趋势向上时等 RSI < 40（回调末期）再入场；趋势向下时等 RSI > 60（反弹末期）再入场。第二层确保你不在超买/超卖的价格入场。</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>突破确认（布林带/价格行为）</strong>：价格突破近期高点（做多）或跌破近期低点（做空）。第三层确保趋势确实在启动，而非假信号。</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label g"><i class="fa-solid fa-check-double"></i> 做多共振模板</div>
+      <table class="data-table">
+        <tr><th>指标</th><th>条件</th><th>权重</th></tr>
+        <tr><td class="buy">MACD</td><td class="buy">DIF > 0 且 DIF 上穿 DEA（金叉）</td><td>★★★★★</td></tr>
+        <tr><td class="buy">RSI</td><td class="buy">RSI(14) 从 30-50 区间开始回升</td><td>★★★★</td></tr>
+        <tr><td class="buy">布林带</td><td class="buy">收盘价从下轨附近开始反弹回中轨</td><td>★★★</td></tr>
+        <tr><td class="buy">KDJ</td><td class="buy">K 线在 30 以下上穿 D 线且 J < 20</td><td>★★★</td></tr>
+        <tr><td>ATR</td><td>ATR 开始回升（波动增加=动能加强）</td><td>★★（辅助确认）</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-label r"><i class="fa-solid fa-ban"></i> 做空共振模板</div>
+      <table class="data-table">
+        <tr><th>指标</th><th>条件</th><th>权重</th></tr>
+        <tr><td class="sell">MACD</td><td class="sell">DIF < 0 且 DIF 下穿 DEA（死叉）</td><td>★★★★★</td></tr>
+        <tr><td class="sell">RSI</td><td class="sell">RSI(14) 从 50-70 区间开始回落</td><td>★★★★</td></tr>
+        <tr><td class="sell">布林带</td><td class="sell">收盘价从上轨附近开始回落到中轨</td><td>★★★</td></tr>
+        <tr><td class="sell">KDJ</td><td class="sell">K 线在 70 以上下穿 D 线且 J > 80</td><td>★★★</td></tr>
+        <tr><td>ATR</td><td>ATR 开始回升（波动增加=动能加强）</td><td>★★</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-scale-balanced"></i> 共振策略的关键权衡</div>
+      <div class="compare-grid">
+        <div><div style="font-weight:600;font-size:.78rem;color:var(--green);margin-bottom:4px">✅ 优势</div><ul><li>胜率从 45% 提升至 60-70%</li><li>大大减少假信号和频繁交易</li><li>每次交易有多个理由支持</li><li>心理上更有信心执行</li></ul></div>
+        <div><div style="font-weight:600;font-size:.78rem;color:var(--red);margin-bottom:4px">⚠️ 代价</div><ul><li>信号数量大幅减少（每周1-2次）</li><li>可能错过"不完美但能赚钱"的机会</li><li>过度过滤可能导致过拟合历史</li><li>参数组合膨胀→测试复杂度指数增长</li></ul></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- S8: 常见陷阱 -->
+<section class="section" id="s8">
+  <div class="section-head" onclick="toggle('s8')">
+    <div class="section-icon" style="color:var(--red)">⚠️</div>
+    <div class="section-info"><h2>常见陷阱与避坑指南</h2><p>每个指标都有盲区 · 知道什么不该做比知道该做什么更重要</p></div>
+    <div class="section-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="section-body"><div class="section-inner">
+    <div class="card full">
+      <div class="card-label r"><i class="fa-solid fa-list-ol"></i> 十大常见错误</div>
+      <table class="data-table">
+        <tr><th>#</th><th>错误</th><th>为什么错</th><th>正确做法</th></tr>
+        <tr><td>1</td><td>趋势市用震荡指标做反转</td><td>RSI/KDJ 在强趋势中持续超买不回落</td><td>先用 ADX/MACD 判断市场状态再选指标</td></tr>
+        <tr><td>2</td><td>震荡市用趋势指标追涨杀跌</td><td>均线在横盘中反复金叉死叉，全是假信号</td><td>震荡市用布林带/RSI 做均值回归</td></tr>
+        <tr><td>3</td><td>只看指标不看价格</td><td>指标滞后于价格——价格行为才是第一手信息</td><td>指标是价格变动的影子，不是原因</td></tr>
+        <tr><td>4</td><td>参数过度优化</td><td>把每个指标的参数调到"历史最优"=过拟合</td><td>用默认参数，或固定一套参数不做频繁调整</td></tr>
+        <tr><td>5</td><td>多个同类指标堆叠</td><td>MACD+MA+布林中轨三个都基于均线→冗余</td><td>选趋势类1个+震荡类1个+波动类1个</td></tr>
+        <tr><td>6</td><td>忽视成交量确认</td><td>无量突破往往是假突破</td><td>任何信号都需要成交量放大来确认</td></tr>
+        <tr><td>7</td><td>小周期用大参数</td><td>15分钟K线用 RSI(14) 过于迟钝</td><td>小周期缩短参数，大周期延长参数</td></tr>
+        <tr><td>8</td><td>背离就立刻反向</td><td>MACD 顶背离后价格可能再涨 10-20%</td><td>背离是预警，不是执行信号；等确认</td></tr>
+        <tr><td>9</td><td>只看日线不看周线</td><td>日线金叉但周线死叉=逆大势操作</td><td>多周期共振：周线定方向，日线找入场点</td></tr>
+        <tr><td>10</td><td>迷信单一指标的"圣杯"</td><td>任何指标准确率天花板约 55%</td><td>组合使用+仓位管理+止损纪律才是稳定盈利的核心</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-label g"><i class="fa-solid fa-clipboard-check"></i> 指标使用黄金法则</div>
+      <div class="hl g">
+        <strong>① 先判断市场状态再选指标</strong>（趋势/震荡/转折→MACD/RSI/布林带）<br>
+        <strong>② 趋势类 + 震荡类 + 波动类，三类各选一个</strong>（不堆叠同类指标）<br>
+        <strong>③ 默认参数优先</strong>（MACD 12/26/9, RSI 14, 布林 20/2, KDJ 9/3/3）<br>
+        <strong>④ 信号需要确认</strong>（MACD金叉 + 成交量放大 + 价格突破阻力 = 强度确认）<br>
+        <strong>⑤ 任何一个指标单用的准确率不超过 55%</strong>（组合+仓位+止损才是稳定盈利的核心）
+      </div>
+    </div>
+  </div></div>
+</section>
+
+</main>
+</div>
+
+<footer class="footer">
+  <p>📊 经典技术指标深度解析 · MACD · RSI · 布林带 · KDJ · ATR</p>
+  <p>"指标是价格的影子，不是价格的预言家。"</p>
+</footer>
+
+<script>
+function toggle(id){document.getElementById(id).classList.toggle('expanded')}
+const links=document.querySelectorAll('.sidebar-link');
+const sections=document.querySelectorAll('.section');
+window.addEventListener('scroll',()=>{
+  let cur='';sections.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<150&&r.bottom>150)cur=s.id});
+  links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+cur));
+});
+</script>
+</body>
+</html>

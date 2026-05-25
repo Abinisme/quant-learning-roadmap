@@ -319,8 +319,8 @@ const App = (() => {
       </div>
     `).join('');
     const resourcesHTML = mod.resources.map(r => `
-      <a class="resource-link" href="${r.url}" target="_blank" rel="noopener">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i> ${r.label}
+      <a class="resource-link${r.badge ? ' is-featured' : ''}" href="${r.url}" target="_blank" rel="noopener">
+        <i class="fa-solid ${r.badge ? 'fa-star' : 'fa-arrow-up-right-from-square'}"></i> ${r.label}
       </a>
     `).join('');
 

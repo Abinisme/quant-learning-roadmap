@@ -9,7 +9,7 @@ const ROADMAP_DATA = {
     title: '量化交易学习路线图',
     subtitle: '从小白到顶级刀俎',
     description: '综合 GitHub 开源社区大佬建议，从零到实盘的全路径规划。先看懂 → 再模仿 → 再改造 → 最后自研。',
-    version: '1.4.0',
+    version: '1.5.0',
     lastUpdated: '2026-05-25'
   },
 
@@ -318,7 +318,8 @@ const ROADMAP_DATA = {
           resources: [
             { label: '股票技术指标详解', url: 'https://www.investopedia.com/terms/t/technicalindicator.asp' },
             { label: 'MACD 原理解析', url: 'https://www.investopedia.com/terms/m/macd.asp' },
-            { label: 'TA-Lib Python 绑定', url: 'https://github.com/TA-Lib/ta-lib-python' }
+            { label: 'TA-Lib Python 绑定', url: 'https://github.com/TA-Lib/ta-lib-python' },
+            { label: '🖥️ 技术指标深度解析站', url: 'technical-indicators/index.html', badge: true }
           ]
         },
         {
