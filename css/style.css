@@ -906,6 +906,40 @@ a:hover { color: var(--accent-purple); }
   color: var(--text-secondary);
 }
 
+/* 互动学习站徽章 */
+.resource-badge-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(139,92,246,0.15));
+  border: 1px solid rgba(0,212,255,0.4);
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  text-decoration: none;
+  transition: all 0.2s;
+  animation: badgePulse 2.5s ease-in-out infinite;
+}
+.resource-badge-link:hover {
+  background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(139,92,246,0.25));
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(0,212,255,0.3);
+  transform: translateY(-1px);
+}
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(0,212,255,0.2); }
+  50% { box-shadow: 0 0 12px rgba(0,212,255,0.45); }
+}
+
+.resource-item.has-link {
+  border: 1px solid rgba(0,212,255,0.12);
+  background: linear-gradient(135deg, var(--bg-surface), rgba(0,212,255,0.02));
+}
+
 /* 避坑指南 */
 .pitfalls-list {
   display: grid;

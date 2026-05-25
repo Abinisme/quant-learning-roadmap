@@ -9,7 +9,7 @@ const ROADMAP_DATA = {
     title: '量化交易学习路线图',
     subtitle: '从小白到顶级刀俎',
     description: '综合 GitHub 开源社区大佬建议，从零到实盘的全路径规划。先看懂 → 再模仿 → 再改造 → 最后自研。',
-    version: '1.3.0',
+    version: '1.4.0',
     lastUpdated: '2026-05-25'
   },
 
@@ -938,7 +938,7 @@ const ROADMAP_DATA = {
   globalResources: {
     books: [
       { title: 'Python 金融大数据分析', desc: '入门首选，用 Python 做金融数据实战' },
-      { title: '海龟交易法则', desc: '经典趋势跟踪策略完整解析' },
+      { title: '海龟交易法则', desc: '经典趋势跟踪策略完整解析', link: 'turtle-trading/index.html', badge: '🖥️ 互动学习站' },
       { title: '量化交易——如何建立自己的算法交易事业', desc: '从零搭建量化交易系统' },
       { title: 'Machine Learning for Trading', desc: 'ML+量化，有免费电子版和配套代码' }
     ],

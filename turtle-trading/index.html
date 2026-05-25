@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海龟交易法则 | 完整学习系统</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg: #0a0e14; --bg2: #12171f; --bg3: #1a2130; --bg4: #212b3b;
+  --text: #e2e8f0; --text2: #94a3b8; --text3: #556274;
+  --border: #263040; --border2: #334155;
+  --gold: #d4a574; --gold2: #e8c99b; --gold-bg: rgba(212,165,116,0.06);
+  --green: #3fb950; --green-bg: rgba(63,185,80,0.06);
+  --red: #f85149; --red-bg: rgba(248,81,73,0.06);
+  --blue: #58a6ff; --blue-bg: rgba(88,166,255,0.06);
+  --orange: #f0883e; --orange-bg: rgba(240,136,62,0.06);
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --radius: 10px; --radius-sm: 6px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.78;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 70% 20%,rgba(212,165,116,0.03),transparent 50%),radial-gradient(ellipse at 30% 80%,rgba(88,166,255,0.02),transparent 50%);pointer-events:none;z-index:-1}
+
+/* Progress bar */
+.progress-wrap{position:fixed;top:0;left:0;right:0;height:3px;z-index:1000;background:var(--border)}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--orange),var(--gold));background-size:300% 100%;animation:shimmer 3s linear infinite;transition:width .4s ease;box-shadow:0 0 8px rgba(212,165,116,.3)}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+
+/* Header */
+.header{position:sticky;top:3px;z-index:999;background:rgba(10,14,20,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.header-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem}
+.header-brand i{font-size:1.6rem;color:var(--gold);filter:drop-shadow(0 2px 4px rgba(212,165,116,.3))}
+.header-stats{display:flex;gap:20px;font-family:var(--mono);font-size:.75rem;color:var(--text3)}
+
+/* Layout */
+.layout{max-width:1400px;margin:0 auto;padding:20px 16px 60px;display:flex;gap:24px;align-items:flex-start}
+.sidebar{position:sticky;top:90px;width:250px;flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-height:calc(100vh - 110px);overflow-y:auto}
+.sidebar-head{padding:14px 16px 8px;font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:600}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:.8rem;color:var(--text2);cursor:pointer;border-left:3px solid transparent;transition:all .18s;text-decoration:none}
+.sidebar-link:hover{background:var(--gold-bg);color:var(--text)}
+.sidebar-link.active{color:var(--gold);background:var(--gold-bg);border-left-color:var(--gold)}
+.sidebar-num{font-family:var(--mono);font-size:.7rem;color:var(--gold);width:22px;flex-shrink:0}
+
+/* Content */
+.content{flex:1;min-width:0}
+.module{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:18px;overflow:hidden;scroll-margin-top:90px;transition:border-color .3s}
+.module.expanded{border-color:rgba(212,165,116,.15)}
+.module-head{padding:18px 22px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .2s;user-select:none}
+.module-head:hover{background:rgba(255,255,255,.02)}
+.module-num{font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--gold);flex-shrink:0;min-width:40px;text-align:center;opacity:.85}
+.module-num.star{color:var(--orange);font-size:1.25rem;min-width:50px;letter-spacing:-1px}
+.module-info{flex:1;min-width:0}
+.module-info h2{font-size:1.08rem;font-weight:700}
+.module-info p{font-size:.75rem;color:var(--text2);margin-top:2px}
+.module-info .badge{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:500}
+.badge-core{background:var(--orange-bg);color:var(--orange)}
+.badge-advanced{background:var(--blue-bg);color:var(--blue)}
+.module-arrow{color:var(--text3);transition:transform .3s;font-size:.8rem}
+.module.expanded .module-arrow{transform:rotate(180deg);color:var(--gold)}
+.module-body{max-height:0;overflow:hidden;transition:max-height .55s cubic-bezier(.4,0,.2,1)}
+.module.expanded .module-body{max-height:30000px}
+.module-inner{padding:0 22px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Cards */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card.full{grid-column:1/-1}
+.card-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-label.g{color:var(--green)}.card-label.r{color:var(--red)}.card-label.b{color:var(--blue)}.card-label.o{color:var(--orange)}
+.card ul{list-style:none}.card li{font-size:.8rem;color:var(--text2);padding:5px 0 5px 18px;position:relative;line-height:1.65}
+.card li::before{content:'▸';position:absolute;left:0;color:var(--gold);font-size:.6rem;top:7px}
+
+/* Special elements */
+.hl{background:var(--gold-bg);border:1px solid rgba(212,165,116,.2);border-radius:var(--radius-sm);padding:12px 14px;font-size:.8rem;color:var(--gold2);line-height:1.7;margin:6px 0}
+.hl.r{background:var(--red-bg);border-color:rgba(248,81,73,.2);color:var(--red)}
+.hl.g{background:var(--green-bg);border-color:rgba(63,185,80,.2);color:var(--green)}
+.hl.b{background:var(--blue-bg);border-color:rgba(88,166,255,.2);color:var(--blue)}
+.hl.o{background:var(--orange-bg);border-color:rgba(240,136,62,.2);color:var(--orange)}
+
+.formula{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--mono);font-size:.78rem;color:var(--gold);text-align:center;margin:8px 0;letter-spacing:.3px}
+.data-table{width:100%;border-collapse:collapse;font-size:.78rem;margin:6px 0}
+.data-table th{background:rgba(212,165,116,.07);color:var(--gold2);padding:7px 10px;text-align:left;font-weight:600;font-size:.72rem}
+.data-table td{padding:6px 10px;border-top:1px solid var(--border);color:var(--text2)}
+.data-table tr:hover td{background:rgba(255,255,255,.015)}
+.data-table .win{color:var(--green)}.data-table .lose{color:var(--red)}
+
+.diagram{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:var(--mono);font-size:.74rem;color:var(--text2);line-height:1.9;white-space:pre;overflow-x:auto}
+.diagram .buy{color:var(--green)}.diagram .sell{color:var(--red)}.diagram .label{color:var(--gold)}
+
+/* Step list */
+.steps{counter-reset:step}.step{counter-increment:step;display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--gold-bg);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.7rem;color:var(--gold);flex-shrink:0}
+.step-content{font-size:.8rem;color:var(--text2);line-height:1.6;padding-top:3px}
+
+/* Calculator - enhanced */
+.calc-box{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius);padding:20px;grid-column:1/-1}
+.calc-box h4{color:var(--gold);margin-bottom:4px;font-size:.95rem}
+.calc-box .calc-desc{font-size:.72rem;color:var(--text3);margin-bottom:14px}
+.calc-grid{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;align-items:end}
+.calc-field{display:flex;flex-direction:column;gap:4px}
+.calc-field label{font-size:.7rem;color:var(--text3);white-space:nowrap}
+.calc-field input{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:.85rem;width:140px;font-family:var(--mono);transition:border-color .2s}
+.calc-field input:focus{border-color:var(--gold);outline:none}
+.calc-result{background:var(--gold-bg);border:1px solid var(--gold);border-radius:6px;padding:12px 16px;margin-top:10px;font-family:var(--mono);font-size:.82rem;color:var(--gold2)}
+.calc-result-extra{font-size:.7rem;color:var(--text3);margin-top:6px}
+
+/* Quote block */
+.quote{background:rgba(0,0,0,.2);border-left:3px solid var(--gold);padding:14px 18px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-style:italic;font-size:.82rem;color:var(--text2);line-height:1.7;margin:8px 0}
+.quote strong{color:var(--gold2);font-style:normal}
+
+/* 2-col grid inside card */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Timeline */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-item{position:relative;padding:8px 0 8px 20px;font-size:.78rem;color:var(--text2)}
+.timeline-item::before{content:'';position:absolute;left:-15px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--gold);border:2px solid var(--bg2)}
+
+/* Footer */
+.footer{text-align:center;padding:28px 16px;border-top:1px solid var(--border);color:var(--text3);font-size:.75rem;line-height:1.8}
+
+/* Back to top */
+.btt{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(20px);transition:all .3s;z-index:99;font-size:.8rem}
+.btt.vis{opacity:1;transform:translateY(0)}
+.btt:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(212,165,116,.15)}
+
+/* Responsive */
+@media(max-width:1000px){
+  .sidebar{display:none}
+  .module-inner{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:1fr}
+  .header-brand{font-size:.95rem}
+  .header-stats{display:none}
+}
+
+@media(max-width:768px){
+  .layout{padding:12px 8px 40px}
+  .module{margin-bottom:14px;border-radius:8px}
+  .module-head{padding:12px 14px;gap:10px}
+  .module-num{font-size:1.5rem;min-width:32px}
+  .module-num.star{font-size:1.1rem;min-width:42px}
+  .module-info h2{font-size:.9rem;line-height:1.3}
+  .module-info p{font-size:.7rem}
+  .badge{padding:1px 6px;font-size:.6rem}
+  .module-inner{padding:0 10px 14px;gap:10px}
+  .module-arrow{font-size:.7rem}
+
+  /* Cards */
+  .card{padding:12px}
+  .card-label{font-size:.62rem;margin-bottom:8px}
+  .card li{font-size:.74rem;padding:4px 0 4px 16px}
+  .card li::before{top:6px}
+
+  /* Tables: scroll, not overflow */
+  .data-table{font-size:.72rem;display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .data-table th,.data-table td{padding:5px 8px;font-size:.68rem}
+
+  /* Formula */
+  .formula{font-size:.7rem;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+
+  /* Highlight */
+  .hl{font-size:.74rem;padding:10px 12px}
+
+  /* Calculator */
+  .calc-box{padding:14px}
+  .calc-box h4{font-size:.85rem}
+  .calc-grid{gap:8px}
+  .calc-field input{width:100%;padding:10px 12px;font-size:.82rem}
+  .calc-result{font-size:.74rem;padding:10px 14px;overflow-x:auto}
+
+  /* Quote */
+  .quote{font-size:.74rem;padding:12px 14px}
+
+  /* Steps */
+  .step{gap:8px;padding:8px 0}
+  .step-num{width:24px;height:24px;font-size:.62rem}
+  .step-content{font-size:.74rem}
+
+  /* Timeline */
+  .timeline-item{font-size:.72rem}
+
+  /* 4-column pillar grid → 2-col */
+  .module-inner > .card.full > div[style*="grid-template-columns:repeat(4"]{
+    grid-template-columns:repeat(2,1fr)!important
+  }
+
+  /* Back to top smaller */
+  .btt{width:36px;height:36px;bottom:16px;right:16px;font-size:.7rem}
+
+  /* Sidebar link in new layout when sidebar is hidden */
+  .sidebar-link{font-size:.74rem}
+}
+
+@media(max-width:400px){
+  .header{padding:6px 10px}
+  .header-brand{font-size:.82rem;gap:6px}
+  .header-brand i{font-size:1.2rem}
+  .module-head{padding:10px 10px;gap:8px}
+  .module-num{font-size:1.3rem;min-width:28px}
+  .module-num.star{font-size:1rem;min-width:36px}
+  .module-info h2{font-size:.82rem}
+  .module-info p{font-size:.66rem}
+  .module-inner{padding:0 8px 12px;gap:8px}
+  .card{padding:10px}
+  .card li{font-size:.7rem;padding:3px 0 3px 14px}
+  .data-table{font-size:.66rem}
+  .data-table th,.data-table td{padding:4px 6px;font-size:.62rem}
+  .formula{font-size:.64rem;padding:8px 10px}
+  .hl{font-size:.7rem;padding:8px 10px}
+  .diagram{font-size:.64rem;padding:10px 12px}
+  .calc-box{padding:10px}
+  .calc-box h4{font-size:.78rem}
+  .calc-field input{padding:8px 10px;font-size:.78rem}
+  .calc-result{font-size:.7rem}
+  .footer{font-size:.68rem;padding:20px 12px}
+}
+@media print{.sidebar,.header,.progress-wrap,.btt{display:none}.module{border:none;break-inside:avoid}.module-body{max-height:none!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+
+<!-- Progress -->
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-brand"><i class="fa-solid fa-turtle"></i> 海龟交易法则</div>
+  <div class="header-stats">
+    <span>Richard Dennis · 1983</span>
+    <span>|</span>
+    <span id="readTime">8 个模块</span>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-head">学习路径</div>
+  <a class="sidebar-link active" href="#m1"><span class="sidebar-num">01</span>起源与哲学</a>
+  <a class="sidebar-link" href="#m2"><span class="sidebar-num">02</span>市场选择</a>
+  <a class="sidebar-link" href="#m3"><span class="sidebar-num">★03</span>头寸规模</a>
+  <a class="sidebar-link" href="#m4"><span class="sidebar-num">04</span>入市策略</a>
+  <a class="sidebar-link" href="#m5"><span class="sidebar-num">05</span>止损策略</a>
+  <a class="sidebar-link" href="#m6"><span class="sidebar-num">06</span>退出与加仓</a>
+  <a class="sidebar-link" href="#m7"><span class="sidebar-num">07</span>实战演练</a>
+  <a class="sidebar-link" href="#m8"><span class="sidebar-num">08</span>速查卡</a>
+</nav>
+
+<main class="content" id="content">
+
+<!-- ============ MODULE 1: 起源与哲学 ============ -->
+<section class="module expanded" id="m1">
+  <div class="module-head" onclick="toggle('m1')">
+    <div class="module-num">01</div>
+    <div class="module-info"><h2>起源与哲学 <span class="badge badge-core">基础</span></h2><p>传奇实验 · 核心信念 · 四大支柱</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <!-- Card 1: The Story -->
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-clock"></i> 一个改变交易史的打赌</div>
+      <div class="timeline">
+        <div class="timeline-item"><strong>1970s</strong> — Richard Dennis 从芝加哥期货交易所的跑单员起步，靠几百美元本金做到上亿美元身家，被誉为"交易厅王子"。</div>
+        <div class="timeline-item"><strong>1983 年夏</strong> — Dennis 与合伙人 William Eckhardt 发生激烈争论：成功的交易员是天生的还是可以培养的？Eckhardt 认为是天赋，Dennis 认为是纪律。</div>
+        <div class="timeline-item"><strong>1983 年秋</strong> — 两人决定用实验验证。他们在《华尔街日报》《巴伦周刊》《纽约时报》刊登广告招募学员，措辞是："交易员培训生，无需经验。"</div>
+        <div class="timeline-item"><strong>1983 年末</strong> — 从 1000+ 申请者中筛选出 23 人（有扑克牌手、会计师、退伍军人、甚至一个 19 岁的高中毕业生），进行两周封闭培训。</div>
+        <div class="timeline-item"><strong>1984-1988</strong> — Dennis 给每人 50万-200万美元真实资金。四年后，这群"海龟"累计盈利 <strong style="color:var(--green)">超过 1 亿美元</strong>。</div>
+        <div class="timeline-item"><strong>后续影响</strong> — 海龟实验证明：交易成功 <strong style="color:var(--gold2)">7 分纪律 + 2 分系统 + 1 分天赋</strong>。这张"可以培养"的结论，开启了全球量化交易培训的序幕。</div>
+      </div>
+    </div>
+
+    <!-- Card 2: Core Philosophy -->
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-lightbulb"></i> 核心信念</div>
+      <div class="hl">截断亏损，让利润奔跑。<br><em style="font-size:.72rem">Cut losses short. Let profits run.</em></div>
+      <ul style="margin-top:8px">
+        <li>不要预测市场方向——<strong>跟随</strong>已经发生的趋势</li>
+        <li>你不知道哪一笔交易会赚钱——但你知道<strong>长期概率</strong>对你有利</li>
+        <li>亏损不是失败，是<strong>交易成本</strong>——就像餐厅的租金和水电费</li>
+        <li>情绪是交易最大的敌人——<strong>规则</strong>是唯一的朋友</li>
+      </ul>
+    </div>
+
+    <!-- Card 3: The Bet Details -->
+    <div class="card">
+      <div class="card-label b"><i class="fa-solid fa-scale-balanced"></i> Dennis vs Eckhardt：两种世界观</div>
+      <table class="data-table">
+        <tr><th></th><th>Dennis 的观点</th><th>Eckhardt 的观点</th></tr>
+        <tr><td>交易能力</td><td>可以像教打台球一样教</td><td>需要天生直觉和天赋</td></tr>
+        <tr><td>培训周期</td><td>两周足以教会规则</td><td>需要多年的市场浸润</td></tr>
+        <tr><td>成功要素</td><td>纪律 + 系统</td><td>天资 + 经验</td></tr>
+        <tr><td>实验赌注</td><td colspan="2" style="text-align:center;color:var(--gold)">用真实的钱，在真实的市场中验证</td></tr>
+      </table>
+    </div>
+
+    <!-- Card 4: Four Pillars -->
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-list-ol"></i> 海龟系统的四大支柱</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:4px">
+        <div style="text-align:center;padding:14px 8px;background:var(--gold-bg);border-radius:8px;border:1px solid rgba(212,165,116,.1)">
+          <div style="font-size:1.6rem">📊</div>
+          <div style="font-weight:700;font-size:.8rem;margin:6px 0 2px">市场选择</div>
+          <div style="font-size:.68rem;color:var(--text3)">流动的才是<br>可交易的</div>
+        </div>
+        <div style="text-align:center;padding:14px 8px;background:var(--orange-bg);border-radius:8px;border:1px solid rgba(240,136,62,.1)">
+          <div style="font-size:1.6rem">⚖️</div>
+          <div style="font-weight:700;font-size:.8rem;margin:6px 0 2px">头寸规模 ★</div>
+          <div style="font-size:.68rem;color:var(--text3)">每笔该买<br>多少</div>
+        </div>
+        <div style="text-align:center;padding:14px 8px;background:var(--green-bg);border-radius:8px;border:1px solid rgba(63,185,80,.1)">
+          <div style="font-size:1.6rem">📈</div>
+          <div style="font-weight:700;font-size:.8rem;margin:6px 0 2px">入市/退出</div>
+          <div style="font-size:.68rem;color:var(--text3)">何时买<br>何时卖</div>
+        </div>
+        <div style="text-align:center;padding:14px 8px;background:var(--red-bg);border-radius:8px;border:1px solid rgba(248,81,73,.1)">
+          <div style="font-size:1.6rem">🛡️</div>
+          <div style="font-weight:700;font-size:.8rem;margin:6px 0 2px">止损</div>
+          <div style="font-size:.68rem;color:var(--text3)">活下来才<br>有未来</div>
+        </div>
+      </div>
+      <p style="font-size:.72rem;color:var(--text3);text-align:center;margin-top:10px">
+        这四根柱子缺一不可。前三根决定你能赚多少，最后一根决定你亏不亏完。
+      </p>
+    </div>
+
+    <!-- Card 5: Key takeaways -->
+    <div class="card full">
+      <div class="card-label g"><i class="fa-solid fa-check-circle"></i> 学完本模块你应该记住</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content">交易员可以<strong>被培养</strong>——23 个零基础普通人用同一套规则赚了上亿美元。</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content">海龟交易法是一个<strong>完整的系统</strong>，不是几个零散的技巧。市场选择→头寸→入场→止损→退出→加仓，每步都有精确规则。</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>纪律压倒一切</strong>。海龟中最成功的不是最聪明的，而是最严格执行规则的。连续止损 10 次还坚持执行的人，最终赚得最多。</div></div>
+      </div>
+      <div class="quote" style="margin-top:10px"><strong>"我们不知道哪笔交易会赚钱。我们知道的是，只要严格执行这套规则，长期概率会对我们有利。"</strong> — Richard Dennis</div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 2: 市场选择 ============ -->
+<section class="module" id="m2">
+  <div class="module-head" onclick="toggle('m2')">
+    <div class="module-num">02</div>
+    <div class="module-info"><h2>市场选择</h2><p>流动性优先 · 海龟交易池 · 现代迁移</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-filter"></i> 海龟选市场的三条铁律</div>
+      <ul>
+        <li><strong>高流动性</strong>：日均成交额足够大，百万级资金进出不会显著冲击价格。Dennis 的标准——你的一笔交易应该像一颗石子投入大海，不起波澜。</li>
+        <li><strong>趋势性</strong>：历史上出现过清晰、持续的长期趋势。海龟是纯粹的趋势跟踪系统——在横盘震荡市中会持续小额亏损，必须靠趋势行情中的大盈利覆盖。</li>
+        <li><strong>多样性</strong>：多个不相关市场并行。外汇、利率、金属、能源、农产品——覆盖面越广，总有一个市场在走趋势。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-globe"></i> 原版海龟交易池</div>
+      <p style="font-size:.72rem;color:var(--text3);margin-bottom:8px">Dennis 当年指定的交易品种（1980s 芝加哥期货交易所）：</p>
+      <table class="data-table">
+        <tr><th>类别</th><th>品种</th><th>特点</th></tr>
+        <tr><td>外汇</td><td>英镑、瑞士法郎、日元、欧元</td><td>趋势性强，受宏观政策驱动</td></tr>
+        <tr><td>利率</td><td>30年国债、10年国债、欧洲美元</td><td>趋势最持续，流动性极好</td></tr>
+        <tr><td>金属</td><td>黄金、白银、铜</td><td>通胀+避险双重驱动</td></tr>
+        <tr><td>能源</td><td>原油、取暖油、无铅汽油</td><td>地缘政治敏感，波动大</td></tr>
+        <tr><td>农产品</td><td>玉米、小麦、大豆、棉花、糖、咖啡</td><td>季节性+天气驱动，独立于金融周期</td></tr>
+      </table>
+      <p style="font-size:.7rem;color:var(--text3);margin-top:6px">注意：15 个品种覆盖 5 大类资产，确保至少 3-5 个品种在任何时候处于趋势中。</p>
+    </div>
+
+    <div class="card full">
+      <div class="card-label b"><i class="fa-solid fa-arrow-right-arrow-left"></i> A 股迁移：能用海龟吗？</div>
+      <table class="data-table">
+        <tr><th>原版条件</th><th>A 股情况</th><th>对策</th></tr>
+        <tr><td>T+0 随时可以止损</td><td class="lose">T+1 当天买入无法卖出</td><td>日线级别信号，不依赖日内止损</td></tr>
+        <tr><td>多空双向</td><td class="lose">做空受限（融券门槛高、券源少）</td><td>① 用 ETF 替代个股 ② 或用股指期货</td></tr>
+        <tr><td>自带杠杆</td><td class="lose">股票无杠杆</td><td>不影响系统逻辑，只是收益绝对值不同</td></tr>
+        <tr><td>品种独立性强</td><td class="win">沪深 300 成分股行业分散</td><td>选不同行业的领头羊：茅台、宁德、美的等</td></tr>
+      </table>
+      <p style="font-size:.74rem;color:var(--text2);margin-top:8px">
+        <strong>实操建议</strong>：在 A 股应用海龟，最佳选择是 <strong>ETF 轮动</strong>——用海龟的突破信号在沪深 300ETF、创业板 ETF、科创 50ETF 之间切换，或者直接在股指期货（IF/IC/IM）上跑原版系统。
+      </p>
+    </div>
+
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-magnifying-glass-chart"></i> 如何评估一个新市场</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><strong>流动性测试</strong>：日均成交额 > 你的最大单笔资金的 100 倍。如果你计划每笔投 10 万，标的日均成交需 > 1000 万。</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>趋势性测试</strong>：计算过去 5 年"连续上涨超过 30%"的次数。频次越高，海龟越有利可图。</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>相关性测试</strong>：与该市场你已有的品种的相关性 < 0.5。如果高度相关，不能算作"分散"。</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><strong>成本测试</strong>：双边手续费+滑点 < ATR(20) 的 20%。如果交易成本太高，信号会被摩擦吞噬。</div></div>
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 3: 头寸规模 ★ ============ -->
+<section class="module expanded" id="m3">
+  <div class="module-head" onclick="toggle('m3')">
+    <div class="module-num star">★03</div>
+    <div class="module-info"><h2>头寸规模——整座大厦的基石 <span class="badge badge-core">核心</span></h2><p>N 值 · ATR · 头寸单位 · 波动率标准化</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <!-- Why this matters -->
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-star"></i> 为什么仓位管理比选股重要 100 倍</div>
+      <p style="font-size:.8rem;color:var(--text2);line-height:1.7">
+        绝大多数交易者把 90% 的精力花在"该不该买"上，只花 10% 在"该买多少"上。
+        海龟反其道而行——<strong>入场信号极其简单（涨破 20 日高点就买）</strong>，但仓位计算极其精密。
+        原因：你无法控制市场涨跌，但你可以精确控制每笔交易承担多少风险。
+      </p>
+      <div class="hl o" style="margin-top:10px">
+        假设你有一个胜率 60%、盈亏比 1:1 的策略。如果每次满仓 all-in，连续 3 次亏损就爆仓了——策略再"好"也没有机会兑现。
+        但如果每次只冒 2% 的本金，连续亏损 20 次后还剩 67%。你活到了概率兑现的那一天。
+        <strong>"仓位管理 = 生存管理。"</strong>
+      </div>
+    </div>
+
+    <!-- ATR N-value -->
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-ruler"></i> N 值——海龟的度量衡</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:8px">
+        N = ATR(20)，即"这个品种平均每天波动多少钱"。
+      </p>
+      <div class="formula">
+        True Range = max(当日高-当日低, |当日高-昨收|, |当日低-昨收|)<br>
+        N = ATR(20) = True Range 的 20 日指数移动平均
+      </div>
+      <p style="font-size:.72rem;color:var(--text3);margin-top:6px">
+        True Range 考虑了三件事：当日振幅、向上跳空、向下跳空。跳空非常重要——如果昨天收盘 100，今天开盘直接跌到 95（-5%），即使当日最高最低只差 1 元，TR 也是 5 元。
+      </p>
+    </div>
+
+    <!-- Unit -->
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-cubes"></i> 头寸单位（Unit）</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:8px">
+        1 个 Unit = 该头寸每天波动 ≈ 账户总资金的 <strong>1%</strong>
+      </p>
+      <div class="formula">
+        Unit Size = (账户资金 × 1%) / (N × 合约乘数)
+      </div>
+      <p style="font-size:.72rem;color:var(--text3);margin-top:8px">
+        合约乘数：期货每手对应多少单位标的。如沪深 300 股指期货乘数 = 300 元/点，原油期货乘数 = 1000 桶/手。
+        股票无乘数 → 直接用价格。
+      </p>
+    </div>
+
+    <!-- Calculator -->
+    <div class="calc-box">
+      <h4>🐢 交互式 Unit 计算器</h4>
+      <p class="calc-desc">输入参数，实时计算你应该买多少。这是海龟系统中最常被调用的公式。</p>
+      <div class="calc-grid">
+        <div class="calc-field"><label>账户总资金 (元)</label><input type="number" id="cc" value="1000000" oninput="calc()"></div>
+        <div class="calc-field"><label>N 值 (ATR-20)</label><input type="number" id="cn" value="3.5" step="0.1" oninput="calc()"></div>
+        <div class="calc-field"><label>合约乘数 (股票=1)</label><input type="number" id="cm" value="1" oninput="calc()"></div>
+        <div class="calc-field"><label>当前价格 (元)</label><input type="number" id="cp" value="50" step="0.01" oninput="calc()"></div>
+      </div>
+      <div class="calc-result" id="cr"><strong>1 Unit = </strong>请填写参数</div>
+      <div class="calc-result-extra" id="ce"></div>
+    </div>
+
+    <!-- Multiple examples -->
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-table"></i> 同一账户，不同品种的 Unit 计算</div>
+      <table class="data-table">
+        <tr><th>品种</th><th>价格</th><th>N 值</th><th>乘数</th><th>1 Unit</th><th>说明</th></tr>
+        <tr><td>沪深300</td><td>3,800</td><td>80</td><td>300</td><td style="font-family:var(--mono)">≈ 0.4手→1手</td><td>保证金高，需要的Unit数少</td></tr>
+        <tr><td>茅台</td><td>1,800</td><td>35</td><td>1</td><td style="font-family:var(--mono)">≈ 285股</td><td>波动大，N值大=仓位小</td></tr>
+        <tr><td>工商银行</td><td>5.5</td><td>0.12</td><td>1</td><td style="font-family:var(--mono)">≈ 83,333股</td><td>波动小，N值小=仓位大</td></tr>
+        <tr><td>原油期货</td><td>75</td><td>1.8</td><td>1000</td><td style="font-family:var(--mono)">≈ 5.5手→5手</td><td>乘数大，放大了波动</td></tr>
+      </table>
+      <p style="font-size:.72rem;color:var(--text3);margin-top:8px">
+        <strong>关键洞察</strong>：茅台波动大 → N 值大 → Unit 手数小。工商银行波动小 → N 值小 → Unit 手数大。
+        两者最终承担的风险（1 Unit 的日波动）完全相同。N 值让苹果和橙子可以公平比较。
+      </p>
+    </div>
+
+    <!-- Why N-based sizing -->
+    <div class="card full">
+      <div class="card-label g"><i class="fa-solid fa-brain"></i> 为什么 N 值仓位管理是革命性的</div>
+      <div class="card-grid">
+        <div>
+          <div style="font-weight:600;font-size:.8rem;margin-bottom:4px;color:var(--red)">传统做法</div>
+          <ul>
+            <li>每个品种买同样金额（各 10 万）</li>
+            <li>原油波动 3% 和国债波动 0.3% 被视为同等风险</li>
+            <li>回撤集中在高波动品种上</li>
+            <li>组合风险不可控</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:.8rem;margin-bottom:4px;color:var(--green)">海龟做法</div>
+          <ul>
+            <li>每个 Unit 承担相同的账户风险</li>
+            <li>高波动→少买，低波动→多买</li>
+            <li>所有品种贡献的风险均等</li>
+            <li>组合风险可控、可预测</li>
+          </ul>
+        </div>
+      </div>
+      <div class="hl g" style="margin-top:10px">
+        <strong>一句话总结</strong>：N 值仓位管理让你在原油上亏的钱和在国债上亏的钱"
+        感觉一样"——因为它们对账户的冲击被精确地标准化了。
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 4: 入市策略 ============ -->
+<section class="module" id="m4">
+  <div class="module-head" onclick="toggle('m4')">
+    <div class="module-num">04</div>
+    <div class="module-info"><h2>入市策略 <span class="badge badge-core">核心</span></h2><p>系统一 (20日) · 系统二 (55日) · 过滤规则 · 双系统并行</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <!-- Philosophy -->
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-lightbulb"></i> 入市设计的哲学</div>
+      <p style="font-size:.8rem;color:var(--text2);line-height:1.7">
+        海龟的入场信号<strong>极其简单</strong>——价格突破 N 日最高/最低价就入场。这不是偷懒，而是刻意为之。
+        复杂的入场条件 = 更多的参数 = 更严重的过拟合 = 更差的实盘表现。
+        海龟把智力投入在<strong>仓位管理</strong>和<strong>退出策略</strong>上，入场只是"扣动扳机"——简洁但不简陋。
+      </p>
+    </div>
+
+    <!-- System 1 -->
+    <div class="card">
+      <div class="card-label g"><i class="fa-solid fa-arrow-trend-up"></i> 系统一：20 日突破（短线）</div>
+      <div class="hl g">
+        <strong>做多</strong>：价格 > 过去 20 日的最高价 → 以突破价买入 1 个 Unit<br>
+        <strong>做空</strong>：价格 < 过去 20 日的最低价 → 以突破价卖出 1 个 Unit
+      </div>
+      <table class="data-table" style="margin-top:10px">
+        <tr><th>特性</th><th>描述</th></tr>
+        <tr><td>信号频率</td><td>每年约 3-6 次/品种</td></tr>
+        <tr><td>持仓周期</td><td>数天到数周</td></tr>
+        <tr><td>胜率</td><td>约 35-38%</td></tr>
+        <tr><td style="color:var(--orange)">过滤规则</td><td style="color:var(--orange)">如果上一次 20 日突破交易是<strong>盈利</strong>的 → <strong>忽略</strong>本次信号</td></tr>
+      </table>
+    </div>
+
+    <!-- System 2 -->
+    <div class="card">
+      <div class="card-label b"><i class="fa-solid fa-chart-line"></i> 系统二：55 日突破（长线）</div>
+      <div class="hl b">
+        <strong>做多</strong>：价格 > 过去 55 日的最高价 → 以突破价买入 1 个 Unit<br>
+        <strong>做空</strong>：价格 < 过去 55 日的最低价 → 以突破价卖出 1 个 Unit
+      </div>
+      <table class="data-table" style="margin-top:10px">
+        <tr><th>特性</th><th>描述</th></tr>
+        <tr><td>信号频率</td><td>每年约 1-3 次/品种</td></tr>
+        <tr><td>持仓周期</td><td>数周到数月</td></tr>
+        <tr><td>胜率</td><td>约 40-45%</td></tr>
+        <tr><td style="color:var(--green)">过滤规则</td><td style="color:var(--green)"><strong>无</strong>——每次 55 日突破都必须执行</td></tr>
+      </table>
+    </div>
+
+    <!-- Filter Rule Explained -->
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-filter-circle-xmark"></i> 系统一的过滤规则——为什么？</div>
+      <p style="font-size:.8rem;color:var(--text2);line-height:1.7;margin-bottom:10px">
+        系统一的过滤规则是整个海龟系统中最"反直觉"的设计。它背后的逻辑是：
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content">如果上一次 20 日突破交易<strong>盈利</strong>了 → 说明当前趋势发展良好，价格已经离开突破点较远。此时如果再出现突破信号，大概率是"追高"，风险收益比不佳。</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content">如果上一次 20 日突破交易<strong>亏损</strong>了 → 说明趋势可能刚启动就夭折了（假突破），或者是大的盘整区间被打破。此时再出现突破信号，可能是"真正的趋势的开始"。</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>关键</strong>：这个过滤只针对系统一。系统二（55 日突破）在所有情况下都必须执行——因为 55 日级别的突破太珍贵了，错过一次可能错过整个大趋势。</div></div>
+      </div>
+    </div>
+
+    <!-- Entry Diagram -->
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-diagram-project"></i> 双系统并行运作示意图</div>
+      <pre class="diagram">
+价格
+      <span class="label">                        ← 系统二55日突破, 入场!</span>
+240 ┤                              <span class="buy">● 系统二 买入</span>
+220 ┤              <span class="buy">● 系统一 买入</span>│
+200 ┤    ┌──────────┐│              │
+180 ┤────┘  盘整区    ││              │
+160 ┤               ││              │
+140 ┤  55日最低 ────┘│              │
+120 ┤                │              │
+    └────────────────┴──────────────┴─→ 时间
+      ← 系统一频繁交易 →  ← 系统二抓大趋势 →
+<span class="label">      (过滤假突破)        (从不放过任何信号)</span></pre>
+      <p style="font-size:.72rem;color:var(--text3);margin-top:6px">
+        系统一负责在震荡市中捕捉小趋势（但也产生较多假信号），系统二负责在真正的牛市/熊市中从鱼头吃到鱼身。
+        两者独立并行，各自管理各自的仓位和止损。
+      </p>
+    </div>
+
+    <!-- Edge Cases -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-solid fa-circle-exclamation"></i> 入市策略的常见疑问</div>
+      <table class="data-table">
+        <tr><th>问题</th><th>答案</th></tr>
+        <tr><td>如果系统一和系统二同一天发信号？</td><td>各买各的——它们是两套独立的系统，不会合并信号。</td></tr>
+        <tr><td>涨停买不到怎么办？</td><td>海龟用"突破价"下单，不是"收盘价"。涨停板排队——大概率买不到，但规则如此。如果连续 3 天买不到，放弃本次信号。</td></tr>
+        <tr><td>跳空高开超过突破价？</td><td>以开盘价买入（不是突破价）。海龟允许一个 Unit 的滑点容忍度。</td></tr>
+        <tr><td>同时做多和做空同一品种？</td><td>可能！系统一做多+系统二做空同时持有——这被称为"价差效应"，实际上是一种自然对冲。</td></tr>
+      </table>
+    </div>
+
+    <!-- Engineering practices from GitHub -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：生产级的入市信号检测</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        以下设计模式提取自 <strong>backtrader</strong> (21.7k★)、<strong>backtesting.py</strong> (8.4k★) 和 <strong>freqtrade</strong> (50.8k★) 三个顶级开源项目的源码——它们如何避免入门开发者最常犯的入市信号错误。
+      </p>
+      <table class="data-table">
+        <tr><th>工程问题</th><th>常见错误</th><th>开源项目的解决方案</th></tr>
+        <tr>
+          <td><strong>前瞻偏差</strong></td>
+          <td>用当日最高价判断"是否突破20日高点"——但当日还没收盘，最高价还在变动。实盘中你这样判断，信号会不断闪烁。</td>
+          <td>backtrader 的 <code>next()</code> 方法只在 K 线闭合后调用一次，确保你看到的价格不会"回头修改"。freqtrade 更激进——内置 <code>lookahead-analysis</code> 命令自动扫描策略是否存在未来函数。</td>
+        </tr>
+        <tr>
+          <td><strong>信号重复</strong></td>
+          <td>同一根 K 线上触发多次买入（连续调用 buy()），导致实际仓位远超预期。</td>
+          <td>backtesting.py 提供 <code>exclusive_orders=True</code> 参数——每个方向（long/short）同一时间只能有一个活跃订单。新订单自动取消旧订单。这是生产系统的基本保障。</td>
+        </tr>
+        <tr>
+          <td><strong>跳空处理</strong></td>
+          <td>突破价格是 100 元，但第二天开盘直接跳空到 105 元——策略代码还是用 100 元模拟成交，回测严重失真。</td>
+          <td>backtrader 的经纪商模拟支持 <code>slip_open</code> 参数——当开盘价已超过突破价时，以开盘价成交而非突破价。配合 <code>slip_fixed</code> 滑点模型更真实。</td>
+        </tr>
+        <tr>
+          <td><strong>指标计算时机</strong></td>
+          <td>在 <code>next()</code> 中重复计算均线、最高价——性能极差且结果可能不一致。</td>
+          <td>backtrader 的 <code>__init__</code> 中声明指标（框架自动缓存+更新），<code>next()</code> 中只读取。这个"声明-读取"分离是事件驱动回测引擎的经典设计模式。</td>
+        </tr>
+      </table>
+      <div class="hl b" style="margin-top:10px">
+        <strong>实战启示</strong>：如果你用纯 Pandas 手写海龟策略，至少要做到两件事——① 用 <code>shift(1)</code> 确保入场信号基于"上一根已闭合 K 线"的数据；② 用一个 <code>position</code> 变量追踪持仓状态，防止同一信号重复下单。
+      </div>
+    </div>
+
+    <!-- Self-check -->
+    <div class="card full">
+      <div class="card-label g"><i class="fa-solid fa-clipboard-check"></i> 学完前四模块·自检清单</div>
+      <div class="card-grid">
+        <div><ul>
+          <li>我能说出海龟实验的背景和核心结论</li>
+          <li>我理解为什么仓位管理比选股/择时更重要</li>
+          <li>我能独立计算任意品种的 N 值和 Unit 大小</li>
+        </ul></div>
+        <div><ul>
+          <li>我能区分系统一和系统二的入场规则</li>
+          <li>我理解系统一"上次盈利就跳过"的过滤逻辑</li>
+          <li>我知道为什么 55 日突破从不过滤</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 5: 止损策略 ============ -->
+<section class="module" id="m5">
+  <div class="module-head" onclick="toggle('m5')">
+    <div class="module-num">05</div>
+    <div class="module-info"><h2>止损策略 <span class="badge badge-core">核心</span></h2><p>2N 硬止损 · 移动止损 · 为什么止损比入场重要 10 倍</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <div class="card">
+      <div class="card-label r"><i class="fa-solid fa-shield-halved"></i> 2N 硬止损——海龟最后的保险丝</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px">
+        每笔交易的最大亏损 = 入场价 ± 2×N。这是<strong>不可协商的规则</strong>——没有例外，没有"再等等看"。
+      </p>
+      <div class="hl r">
+        <strong>做多</strong>：止损价 = 入场价 - 2×N<br>
+        <strong>做空</strong>：止损价 = 入场价 + 2×N
+      </div>
+      <div class="formula" style="margin-top:10px">
+        例：入场 200 元，N=3.5 元，Unit=285 股<br>
+        止损价 = 200 - 2×3.5 = 193 元<br>
+        最大亏损 = (200-193) × 285 = 1,995 元 ≈ 账户 100 万的 0.2%
+      </div>
+      <p style="font-size:.7rem;color:var(--text3);margin-top:6px">
+        注意：单 Unit 最大亏损约 0.2% 账户。即使 4 个 Unit 全部触发止损（极端情况），总亏损也 < 1%。
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-arrow-trend-down"></i> 移动止损——利润保护机制</div>
+      <ul>
+        <li>持有多头时，止损位<strong>随价格上涨而上移</strong>，但绝不下移</li>
+        <li>盈利超过 2N 后，将止损移至<strong>盈亏平衡点</strong>——这笔交易不会再亏钱了</li>
+        <li>海龟真正的退出信号是通道突破（见模块 6），但止损位确保了"如果退出信号迟迟不来，我不会亏太多"</li>
+        <li>移动止损 = 让利润自己保护自己。一旦有了安全垫，就永远不让盈利变亏损</li>
+      </ul>
+    </div>
+
+    <div class="card full">
+      <div class="card-label r"><i class="fa-solid fa-skull"></i> 不止损的数学后果</div>
+      <table class="data-table">
+        <tr><th>连续亏损次数</th><th>概率（趋势策略）</th><th>有 2% 止损后剩余</th><th>无止损后剩余</th></tr>
+        <tr><td>3 次</td><td>~25%</td><td style="color:var(--green)">94.1%</td><td style="color:var(--orange)">取决于亏损程度</td></tr>
+        <tr><td>7 次</td><td>~5%</td><td style="color:var(--green)">86.8%</td><td style="color:var(--red)">大概率爆仓</td></tr>
+        <tr><td>12 次</td><td>~1%</td><td style="color:var(--green)">78.5%</td><td style="color:var(--red)">100% 爆仓</td></tr>
+        <tr><td>17 次</td><td>~0.1%（海龟历史记录）</td><td style="color:var(--green)">70.9%</td><td style="color:var(--red)">—</td></tr>
+      </table>
+      <p style="font-size:.74rem;color:var(--text2);margin-top:10px">
+        Dennis 培训时反复强调的一句话：<strong>"每笔交易的止损不是建议，是命令。违反一次，你就被开除。"</strong>
+        23 个海龟中，最成功的几个正是在连续止损 10+ 次后仍然严格执行系统的人。
+      </p>
+    </div>
+
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-brain"></i> 止损的心理学——比数学更难的部分</div>
+      <div class="quote">
+        <strong>你的大脑在亏损时会自动产生以下想法，每一个都是错的：</strong><br>
+        ① "已经跌了这么多了，该反弹了，现在止损不是卖在最低点吗？"<br>
+        ② "这次不一样——基本面没变化，只是市场恐慌。"<br>
+        ③ "再等等，收盘前如果还不涨我就止损。"（收盘前已经多亏了 2%）<br><br>
+        <strong>海龟的答案</strong>：止损不由你的大脑决定——由<strong>代码</strong>决定。
+        没有商量的余地。没有"这次不一样"。止损触发 = 立即执行。
+      </div>
+    </div>
+
+    <!-- GitHub production stop loss patterns -->
+    <div class="card full">
+      <div class="card-label r"><i class="fa-brands fa-github"></i> GitHub 工程实践：从 2N 到生产级止损系统</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        以下模式提取自 <strong>freqtrade</strong> (50.8k★)、<strong>backtrader</strong> (21.7k★) 和 <strong>quantstats</strong> (7.2k★) 的生产代码——展示专业量化系统如何将原始 2N 止损升级为完整的生存保障体系。
+      </p>
+      <table class="data-table">
+        <tr><th>止损维度</th><th>海龟原版</th><th>开源项目的生产级实现</th></tr>
+        <tr>
+          <td><strong>止损规则</strong></td>
+          <td>2N 硬止损</td>
+          <td>freqtrade <code>stoploss = -0.10</code>（百分比制）。backtrader <code>self.sell(exectype=bt.Order.Stop, price=stop_price)</code>——止损单以交易所 Stop Order 形式发送，由券商撮合而非本地 if 判断，避免网络延迟导致"滑穿止损"。</td>
+        </tr>
+        <tr>
+          <td><strong>移动止损</strong></td>
+          <td>跟随通道低点</td>
+          <td>freqtrade <code>trailing_stop = True</code> + <code>trailing_stop_positive</code>：亏损时用固定止损，盈利超阈值后自动激活移动止损。这是海龟"盈利 2N 后移至盈亏平衡点"思想的现代化生产线实现。</td>
+        </tr>
+        <tr>
+          <td><strong>止损验证</strong></td>
+          <td>依赖历史回测的最大连续亏损</td>
+          <td>quantstats <code>qs.stats.montecarlo(returns, sims=1000, bust=-0.20)</code>——1000 次蒙特卡洛模拟，输出爆仓概率。你的止损参数应确保 1000 次模拟中爆仓概率 &lt; 1%。这是用概率而非直觉回答"止损安全吗"。</td>
+        </tr>
+        <tr>
+          <td><strong>止损-仓位联动</strong></td>
+          <td>N 值间接调整</td>
+          <td>backtesting.py 输出 <code>Kelly Criterion</code>——基于胜率+盈亏比反推最优仓位。止损越宽→盈亏比越低→Kelly 建议仓位越小。将止损距离和仓位做数学绑定，而非凭感觉。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl r" style="font-size:.74rem">
+          <strong>📊 quantstats 止损验证</strong><br>
+          <code style="font-size:.68rem">mc = qs.stats.montecarlo(returns, sims=1000, bust=-0.20)</code><br>
+          <code style="font-size:.68rem">print(f"爆仓概率: {mc.bust_probability:.1%}")</code>
+        </div>
+        <div class="hl r" style="font-size:.74rem">
+          <strong>🤖 freqtrade 止损配置</strong><br>
+          <code style="font-size:.68rem">"stoploss": -0.10,</code><br>
+          <code style="font-size:.68rem">"trailing_stop": true,</code><br>
+          <code style="font-size:.68rem">"stoploss_on_exchange": true</code>
+        </div>
+      </div>
+      <div class="hl r" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三权分立"设计模式</strong>：现代量化系统将止损拆为三个独立关注点：① <strong>止损规则</strong> = 你的策略（什么条件触发）；② <strong>止损执行</strong> = 交易所 Stop Order（由券商保证撮合，而非本地 if 判断）；③ <strong>止损验证</strong> = 蒙特卡洛模拟（用概率回答"安全吗"而非直觉）。三者独立开发、独立测试——这是从"手工作坊"走向"工程化"的核心跨越。
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 6: 退出与加仓 ============ -->
+<section class="module" id="m6">
+  <div class="module-head" onclick="toggle('m6')">
+    <div class="module-num">06</div>
+    <div class="module-info"><h2>退出策略与金字塔加仓</h2><p>系统一 10 日退出 · 系统二 20 日退出 · 0.5N 加仓逻辑</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <div class="card">
+      <div class="card-label r"><i class="fa-solid fa-right-from-bracket"></i> 退出 ≠ 止损</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:8px">
+        止损是被动防御（亏损触发），退出是主动收网（趋势反转触发）。
+        一笔交易有 3 种结束方式：被止损（亏损）、触发退出（可能盈利也可能亏）、到期平仓。
+      </p>
+      <table class="data-table">
+        <tr><th></th><th>做多退出</th><th>做空退出</th></tr>
+        <tr><td><strong>系统一</strong></td><td>价格 < 过去 10 日最低价</td><td>价格 > 过去 10 日最高价</td></tr>
+        <tr><td><strong>系统二</strong></td><td>价格 < 过去 20 日最低价</td><td>价格 > 过去 20 日最高价</td></tr>
+      </table>
+      <p style="font-size:.7rem;color:var(--text3);margin-top:6px">
+        退出参数恰好是入场参数的一半：系统一 20 日入场→10 日退出，系统二 55 日入场→20 日退出。
+        这个设计确保了"入场快、退出更快"——宁可提前下车，不要坐过山车。
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-label g"><i class="fa-solid fa-layer-group"></i> 金字塔加仓——让利润滚雪球</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:8px">
+        趋势确认后持续加仓，而非一次性满仓。这是海龟把"让利润奔跑"从口号变成数学公式的关键机制。
+      </p>
+      <div class="hl g">
+        <strong>加仓规则</strong><br>
+        入场后，价格每朝有利方向移动 <strong>0.5N</strong>，加仓 1 个 Unit。<br>
+        单一品种最多持有 <strong>4 个 Unit</strong>。<br>
+        每次加仓后，所有仓位止损统一更新为最新入场价的 2N 止损。
+      </div>
+      <p style="font-size:.7rem;color:var(--text3);margin-top:6px">
+        例：入场 200 (N=3.5) → 涨到 201.75 加第2U → 涨到 203.50 加第3U → 涨到 205.25 加第4U。
+        此时平均成本 202.625，如果价格回撤到退出位，利润已经锁定了相当一部分。
+      </p>
+    </div>
+
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-chart-simple"></i> 完整生命周期图</div>
+      <pre class="diagram">
+价格
+<span class="label">入场价200, N=3.5</span>
+230 ┤                                      <span class="sell">● 跌破10日低点!</span>
+220 ┤                        <span class="buy">●+第4U 205.25</span>│  <span class="sell">全部平仓</span>
+210 ┤              <span class="buy">●+第2U 201.75</span>│  <span class="buy">●+第3U</span>│     │
+200 ┤  <span class="buy">●入场1U</span>│      │       │        │     │
+190 ┤  │             │       │        │     │
+     ├──┤ 2N止损区   │       │        │     │
+180 ┤  <span class="sell">193止损</span>        │       │        │     │
+    └──┴─────────┴───────┴────────┴─────┴─────┘→ 时间
+      脆弱期     ← 加仓区 →      ← 持有区 →
+<span class="label">   (最需要止损保护)   (趋势确认)    (让利润奔跑)</span></pre>
+    </div>
+
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-scale-balanced"></i> 加仓 vs 不加仓——天壤之别</div>
+      <table class="data-table">
+        <tr><th>场景</th><th>入场</th><th>退出</th><th>盈利</th><th>账户收益</th></tr>
+        <tr><td>满仓不动</td><td>1 Unit @ 200</td><td>230 平仓</td><td>+30 点</td><td>+15%</td></tr>
+        <tr><td>金字塔加仓</td><td>4 Unit 均价 202.63</td><td>230 平仓</td><td>+27.37 点×4</td><td style="color:var(--green)">+54.7%</td></tr>
+      </table>
+      <p style="font-size:.74rem;color:var(--text2);margin-top:10px">
+        同一波 30 点的趋势，加仓让收益翻了近 4 倍。但代价是平均成本更高 → 止损空间被压缩。
+        加仓是一把双刃剑：趋势来了，你赚翻了；趋势突然反转，4 个 Unit 可能同时止损。
+      </p>
+    </div>
+
+    <!-- GitHub exit & pyramid engineering -->
+    <div class="card full">
+      <div class="card-label r"><i class="fa-brands fa-github"></i> GitHub 工程实践：生产级的退出与加仓架构</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示现代框架如何将海龟的原始退出/加仓规则升级为工程级实现。
+      </p>
+      <table class="data-table">
+        <tr><th>工程维度</th><th>海龟原版</th><th>开源项目的生产级实现</th></tr>
+        <tr>
+          <td><strong>止盈-止损联动</strong></td>
+          <td>分别独立：止损=2N，退出=通道突破</td>
+          <td>nautilus_trader 支持 <strong>OCO</strong>（One-Cancels-Other）订单——止盈和止损挂在一起，其中一个成交则另一个自动取消。这是海龟"止损和退出各管各"思想的现代化：同一笔持仓上同时挂止盈+止损，互斥执行。</td>
+        </tr>
+        <tr>
+          <td><strong>部分平仓</strong></td>
+          <td>全仓进出——买就全买，卖就全卖</td>
+          <td>jesse 内置 <code>partial fills</code>——允许分批次退出。盈利超过一定阈值后先平一半仓位锁定利润，留一半博取更大趋势。这比海龟的"全仓退出"更灵活、收益更平滑。</td>
+        </tr>
+        <tr>
+          <td><strong>退出质量验证</strong></td>
+          <td>看最终盈亏</td>
+          <td>quantstats 的 <code>profit_factor</code>（总盈利/总亏损）和 <code>recovery_factor</code>（累计收益/最大回撤）专用于评估退出策略的质量——退出太早=盈利因子低，退出太晚=恢复因子低。pyfolio-reloaded 的 tear sheet 将"进场段收益"和"出场段收益"分开分析，一眼看出退出是加分项还是减分项。</td>
+        </tr>
+        <tr>
+          <td><strong>冰山订单</strong></td>
+          <td>市价单全量成交</td>
+          <td>nautilus_trader 提供 <strong>iceberg</strong>（冰山）订单——只显示订单的一部分，防止大单对市场造成冲击。对于需要平掉大仓位（4 Unit）的加仓策略，冰山订单能大幅降低因平仓造成的滑点损失——这在海龟时代是无法实现的。</td>
+        </tr>
+      </table>
+      <div class="hl r" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示</strong>：海龟退出规则的核心思想是"让趋势自己告诉我该走了"，而非预测顶部。现代框架继承这一思想，但加入了三个关键改进——① <strong>订单联动</strong>（OCO 止盈+止损互斥）；② <strong>部分执行</strong>（partial fills 分批退出）；③ <strong>冲击控制</strong>（iceberg 隐藏真实仓位）。这些改进让退出不再是一个"全有或全无"的二元决策。
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 7: 实战演练 ============ -->
+<section class="module" id="m7">
+  <div class="module-head" onclick="toggle('m7')">
+    <div class="module-num">07</div>
+    <div class="module-info"><h2>实战演练</h2><p>完整 30 天模拟 · 原油期货 · 所有规则协同运作</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <div class="card full">
+      <div class="card-label o"><i class="fa-solid fa-gear"></i> 场景设定</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:8px">
+        品种：WTI 原油期货 · N = 1.5 美元 · 合约乘数 = 1000 桶/手 · 账户资金 = 50 万美元
+      </p>
+      <div class="formula">1 Unit = (500,000 × 1%) / (1.5 × 1000) = 5,000 / 1,500 ≈ 3 手</div>
+    </div>
+
+    <div class="card full">
+      <div class="card-label g"><i class="fa-solid fa-timeline"></i> 30 天完整实战记录</div>
+      <table class="data-table">
+        <tr><th>日</th><th>价格</th><th>最高/最低</th><th>事件</th><th>持仓</th><th>浮动盈亏</th></tr>
+        <tr><td>1</td><td>$80.00</td><td>$80.50</td><td class="win">突破 20 日高点 $79.80！系统一买入 1U (3手)</td><td>3 手</td><td>$0</td></tr>
+        <tr><td>1</td><td>$80.00</td><td></td><td class="red">设止损 = 80 - 2×1.5 = $77.00</td><td>3 手</td><td>$0</td></tr>
+        <tr><td>3</td><td>$78.50</td><td>$77.80</td><td style="color:var(--text3)">小幅回撤，止损未触发，持有</td><td>3 手</td><td>-$4,500</td></tr>
+        <tr><td>5</td><td>$81.50</td><td>$81.75</td><td class="win">涨超 0.5N！加仓 1U (+3手)</td><td>6 手</td><td>$5,500</td></tr>
+        <tr><td>5</td><td>$81.50</td><td></td><td style="color:var(--text3)">更新止损 = 81.50 - 3 = $78.50</td><td>6 手</td><td>$5,500</td></tr>
+        <tr><td>8</td><td>$83.00</td><td>$83.20</td><td class="win">涨超 1.0N！加仓 1U (+3手)</td><td>9 手</td><td>$16,000</td></tr>
+        <tr><td>12</td><td>$84.50</td><td>$85.00</td><td class="win">涨超 1.5N！加仓第 4U (+3手)</td><td>12 手</td><td>$28,500</td></tr>
+        <tr><td>12</td><td>$84.50</td><td></td><td style="color:var(--text3)">达到 4U 上限，不再加仓</td><td>12 手</td><td>$28,500</td></tr>
+        <tr><td>18</td><td>$86.20</td><td>$87.00</td><td style="color:var(--text3)">趋势延续，持有</td><td>12 手</td><td>$49,600</td></tr>
+        <tr><td>22</td><td>$85.00</td><td>$84.50</td><td style="color:var(--text3)">小幅回调，持仓不动</td><td>12 手</td><td>$35,800</td></tr>
+        <tr><td>28</td><td>$83.20</td><td>$83.00</td><td class="lose">跌破 10 日最低价！系统一退出信号</td><td>12 手</td><td>$30,100</td></tr>
+        <tr><td>28</td><td>$83.20</td><td></td><td class="lose">全部平仓。均价成本 $82.13</td><td>0 手</td><td style="color:var(--green)">+$30,100</td></tr>
+      </table>
+    </div>
+
+    <div class="card full">
+      <div class="card-label b"><i class="fa-solid fa-lightbulb"></i> 从这次实战中学到的五件事</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><strong>前期回撤是正常的</strong>——第 3 天浮亏 $4,500（约 1% 账户）但止损未触发。如果不坚持，后面 $30,100 的利润就没了。</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>加仓放大了利润</strong>——如果只持有最初的 3 手（1 Unit），最终盈利只有约 $7,500。加仓到 12 手把利润放大了 4 倍。</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>退出时果断离场</strong>——不贪"再涨回 $87"。退出信号 = 离场，没有讨价还价的余地。</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><strong>止损从未触发</strong>——这笔交易从始至终没碰到止损线。好的交易中，止损只是保险，不是主角。</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content"><strong>一次交易不代表什么</strong>——$30,100 的盈利需要覆盖未来可能出现的 5-8 次连续小额亏损。海龟赚的是概率的钱，不是每笔都赚。</div></div>
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+<!-- ============ MODULE 8: 速查卡 ============ -->
+<section class="module" id="m8">
+  <div class="module-head" onclick="toggle('m8')">
+    <div class="module-num">08</div>
+    <div class="module-info"><h2>参数速查卡</h2><p>一页纸总结 · 所有公式和规则 · 可打印</p></div>
+    <div class="module-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+  </div>
+  <div class="module-body"><div class="module-inner">
+
+    <div class="card full">
+      <div class="card-label"><i class="fa-solid fa-table-list"></i> 海龟交易法则 · 完整参数表</div>
+      <table class="data-table">
+        <tr><th>模块</th><th>参数</th><th>公式/规则</th></tr>
+        <tr><td>N 值</td><td>ATR(20)</td><td>20 日平均真实波幅 = EMA(TR, 20)</td></tr>
+        <tr><td>头寸单位</td><td>1 Unit</td><td>(账户 × 1%) / (N × 合约乘数)</td></tr>
+        <tr><td>系统一入场</td><td>20 日突破</td><td>价格 > 20日高点 → 做多 1U</td></tr>
+        <tr><td>系统一过滤</td><td>上次盈亏</td><td>上一次系统一交易盈利则跳过</td></tr>
+        <tr><td>系统二入场</td><td>55 日突破</td><td>价格 > 55日高点 → 做多 1U</td></tr>
+        <tr><td>系统二过滤</td><td>无</td><td>每次突破必须执行</td></tr>
+        <tr><td>硬止损</td><td>2N</td><td>入场价 ± 2N → 立即平仓</td></tr>
+        <tr><td>系统一退出</td><td>10 日突破</td><td>价格 < 10日低点 → 平仓</td></tr>
+        <tr><td>系统二退出</td><td>20 日突破</td><td>价格 < 20日低点 → 平仓</td></tr>
+        <tr><td>加仓间距</td><td>0.5N</td><td>价格每移动 0.5N → 加 1U（最多 4U）</td></tr>
+        <tr><td>单品种上限</td><td>4 Units</td><td>单一品种最多 4 个头寸单位</td></tr>
+        <tr><td>总仓位上限</td><td>12 Units</td><td>所有品种合计 ≤ 12U（相关 ≤ 6U）</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-code"></i> Python 伪代码——全规则实现</div>
+      <pre style="background:rgba(0,0,0,.35);padding:12px;border-radius:6px;font-size:.7rem;color:var(--text2);overflow-x:auto;line-height:1.7;">
+<span style="color:var(--gold)"># 核心计算</span>
+N = ATR(high, low, close, 20)
+unit = int(account * 0.01 / (N * multiplier))
+
+<span style="color:var(--gold)"># 系统一：20日突破 + 过滤</span>
+if close > highest(high, 20):
+    if last_s1_result == "LOSS":
+        buy(unit); last_s1_result = None
+
+<span style="color:var(--gold)"># 系统二：55日突破 · 不过滤</span>
+if close > highest(high, 55):
+    buy(unit)
+
+<span style="color:var(--red)"># 止损 · 不可协商</span>
+if position > 0 and close < entry - 2*N:
+    sell_all()
+
+<span style="color:var(--gold)"># 加仓 · 每 0.5N 加一次</span>
+if close - last_add_price > 0.5*N and units < 4:
+    buy(unit)
+
+<span style="color:var(--red)"># 退出 · 系统一</span>
+if close < lowest(low, 10):
+    sell_all()
+      </pre>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><i class="fa-solid fa-brain"></i> 海龟成功的终极总结</div>
+      <ul>
+        <li>趋势跟踪天然低胜率（35-40%）→ 靠<strong>高盈亏比</strong>赚钱</li>
+        <li>N 值仓位管理是最核心的创新 → 让波动不同的品种可比</li>
+        <li>双系统并行 + 多品种分散 → 总有一个在市场趋势中</li>
+        <li>纪律压倒天赋 → 23 个普通人证明了这一点</li>
+      </ul>
+      <div class="quote" style="margin-top:12px">
+        <strong>"我们教的是规则，不是预测。预测市场的人最终都会被市场消灭。按规则交易的人才能在市场中长久生存。"</strong> — Richard Dennis
+      </div>
+    </div>
+
+    <!-- GitHub full-system validation -->
+    <div class="card full">
+      <div class="card-label b"><i class="fa-brands fa-github"></i> GitHub 工程实践：如何验证"这个策略真的能用"</div>
+      <p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.7">
+        提取自 <a href="https://github.com/jesse-ai/jesse" target="_blank" style="color:var(--accent-gold)">jesse</a> (7.9k★)、<a href="https://github.com/nautechsystems/nautilus_trader" target="_blank" style="color:var(--accent-gold)">nautilus_trader</a> (23k★)、<a href="https://github.com/ranaroussi/quantstats" target="_blank" style="color:var(--accent-gold)">quantstats</a> (7.2k★) 和 <a href="https://github.com/stefan-jansen/pyfolio-reloaded" target="_blank" style="color:var(--accent-gold)">pyfolio-reloaded</a> (591★)——展示开源社区如何验证一个完整交易系统的可靠性。
+      </p>
+      <table class="data-table">
+        <tr><th>验证维度</th><th>本教程的模拟</th><th>开源项目的生产级方案</th></tr>
+        <tr>
+          <td><strong>单次路径验证</strong></td>
+          <td>原油 30 天单次模拟</td>
+          <td>jesse 的 <strong>Monte Carlo 模式</strong>——用"交易-次序打乱"（判断盈亏是时机还是运气）和"蜡烛数据-随机采样"（模拟不同市场微环境）做数百次模拟，输出收益分布范围。本教程的 30 天模拟只是 500 次模拟中的一种可能——真正的策略验证需要看到完整分布。</td>
+        </tr>
+        <tr>
+          <td><strong>回测-实盘一致性</strong></td>
+          <td>假设回测结果完全可复制</td>
+          <td>nautilus_trader 实现了 <strong>research-to-live parity</strong>——同一套代码、同一执行语义、同一时间模型在回测和实盘两端运行。策略从研究切换到生产<strong>不需要改一行代码</strong>。这才是消除"回测漂亮、实盘崩盘"怪圈的工程正解。</td>
+        </tr>
+        <tr>
+          <td><strong>策略报告</strong></td>
+          <td>几张表格和文字总结</td>
+          <td>quantstats <code>qs.reports.html(returns, benchmark)</code> 一键生成完整的 HTML 策略报告——净值曲线、回撤图、月度收益热力图、滚动夏普比率、蒙特卡洛模拟结果全部打包。pyfolio-reloaded 提供 <strong>tear sheet</strong>——"一页纸看懂策略全貌"的量化标配。</td>
+        </tr>
+        <tr>
+          <td><strong>样本外压力测试</strong></td>
+          <td>未涉及</td>
+          <td>jesse 支持将数据切分为训练期和测试期，且内置 <strong>避免前瞻偏差的保障</strong>——多时间框架策略自动对齐数据，确保训练集中的指标计算不使用测试集的数据。这是海龟原始培训中"缺乏"的现代方法论补充。</td>
+        </tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="hl b" style="font-size:.74rem">
+          <strong>🎲 jesse 蒙特卡洛验证</strong><br>
+          <code style="font-size:.66rem">jesse backtest --monte-carlo 200</code><br>
+          <span style="font-size:.68rem">200 次模拟 · 收益分布 · 识别运气成分</span>
+        </div>
+        <div class="hl b" style="font-size:.74rem">
+          <strong>📊 quantstats 报告生成</strong><br>
+          <code style="font-size:.66rem">qs.reports.html(strategy_returns, "SPY")</code><br>
+          <span style="font-size:.68rem">一键生成 · 净值/回撤/月度热力图</span>
+        </div>
+      </div>
+      <div class="hl b" style="margin-top:10px;font-size:.76rem">
+        <strong>核心启示——"三次验证"方法论</strong>：现代量化社区的共识是，一个策略必须通过三重考验才能上线：① <strong>单路径回测</strong>（本教程的 30 天模拟）→ 验证"按历史数据来看"是否赚钱；② <strong>蒙特卡洛模拟</strong>（jesse 的 MC 模式）→ 验证"如果历史稍微不同"策略是否依然稳健；③ <strong>样本外 Walk-Forward</strong>（nautilus 的 research-to-live parity）→ 验证"在策略从未见过的数据上"表现如何。三重全过，才考虑实盘。
+      </div>
+    </div>
+
+  </div></div>
+</section>
+
+</main>
+</div>
+
+<footer class="footer">
+  <p>🐢 <strong>海龟交易法则</strong> · Richard Dennis & William Eckhardt · 1983</p>
+  <p>"成功的交易 7 分纪律 + 2 分系统 + 1 分天赋。"</p>
+</footer>
+
+<!-- Back to top -->
+<div class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="返回顶部"><i class="fa-solid fa-arrow-up"></i></div>
+
+<script>
+// Toggle module
+function toggle(id){document.getElementById(id).classList.toggle('expanded')}
+
+// Unit calculator
+function calc(){
+  const cap=parseFloat(document.getElementById('cc').value)||0;
+  const n=parseFloat(document.getElementById('cn').value)||0;
+  const m=parseFloat(document.getElementById('cm').value)||0;
+  const p=parseFloat(document.getElementById('cp').value)||0;
+  const r=document.getElementById('cr'),e=document.getElementById('ce');
+  if(cap<=0||n<=0||m<=0||p<=0){r.innerHTML='<strong>1 Unit = </strong>请填写所有参数';e.textContent='';return}
+  const risk=cap*.01;const raw=risk/(n*m);
+  const unit=m===1?Math.round(raw):Math.max(1,Math.floor(raw));
+  const dailyRisk=(unit*n*m).toFixed(0);
+  const pct=(dailyRisk/cap*100).toFixed(2);
+  const entry=p.toFixed(2);
+  const stop=(p-2*n).toFixed(2);
+  const maxLoss=((p-parseFloat(stop))*unit*m).toFixed(0);
+  r.innerHTML=`<strong>1 Unit = ${unit}</strong> ${m===1?'股':'手'} &nbsp;|&nbsp; 日波动 ≈ ¥${dailyRisk} (${pct}%账户)`;
+  e.innerHTML=`入场 ¥${entry} → 止损 ¥${stop} → 持仓市值 ¥${(unit*p).toFixed(0)} → 最大亏损 ¥${maxLoss}`;
+}
+
+// Scroll tracking
+const bar=document.getElementById('progressBar');
+const btt=document.getElementById('btt');
+const links=document.querySelectorAll('.sidebar-link');
+const modules=document.querySelectorAll('.module');
+window.addEventListener('scroll',()=>{
+  const scroll=window.scrollY,max=document.body.scrollHeight-window.innerHeight;
+  bar.style.width=max>0?(scroll/max*100)+'%':'0%';
+  btt.classList.toggle('vis',scroll>500);
+  let cur='';modules.forEach(m=>{const r=m.getBoundingClientRect();if(r.top<180&&r.bottom>180)cur=m.id});
+  links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+cur));
+});
+
+calc();
+</script>
+</body>
+</html>

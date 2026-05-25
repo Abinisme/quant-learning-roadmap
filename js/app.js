@@ -366,11 +366,12 @@ const App = (() => {
     const container = document.getElementById('globalResources');
 
     const booksHTML = gr.books.map(b => `
-      <div class="resource-item">
+      <div class="resource-item${b.link ? ' has-link' : ''}">
         <i class="fa-solid fa-book"></i>
         <div class="ri-info">
           <strong>${b.title}</strong>
           <span>${b.desc}</span>
+          ${b.link ? `<a href="${b.link}" class="resource-badge-link" target="_blank" title="打开互动学习站">${b.badge || '📺 在线学习'}</a>` : ''}
         </div>
       </div>
     `).join('');
